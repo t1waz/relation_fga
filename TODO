@@ -1,0 +1,4 @@
+- contextual tuples
+- invalid data in list objects
+- read extend for id
+- tests for read relations

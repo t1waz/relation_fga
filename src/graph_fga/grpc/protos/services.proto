@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+import "messages.proto";
+
+
+service GraphFgaService {
+    rpc store_read(StoreReadRequest) returns (StoreReadResponse) {}
+    rpc store_write(StoreWriteRequest) returns (StoreWriteResponse) {}
+    rpc store_check(StoreCheckRequest) returns (StoreCheckResponse) {}
+    rpc store_create(StoreCreateRequest) returns (StoreCreateResponse) {}
+    rpc store_list_objects(StoreListObjectsRequest) returns (StoreListObjectsResponse) {}
+}

@@ -1,0 +1,66 @@
+syntax = "proto3";
+
+
+message StoreRelationTuple {
+    string user = 1;
+    string relation = 2;
+    string object = 3;
+}
+
+message StoreWriteRequest {
+    string store_id = 1;
+    repeated StoreRelationTuple writes = 2;
+    repeated StoreRelationTuple deletes = 3;
+}
+
+
+message StoreWriteResponse {
+    string status = 1;
+}
+
+message StoreCheckRequest {
+    string user = 1;
+    string permission = 2;
+    string object = 3;
+    string store_id = 4;
+}
+
+message StoreCheckResponse {
+    bool allowed = 1;
+}
+
+message StoreCreateRequest {
+    string model = 1;
+}
+
+message StoreCreateResponse {
+    string status = 1;
+    string store_id = 2;
+}
+
+message StoreListObjectsRequest {
+    string store_id = 1;
+    string user = 2;
+    string permission = 3;
+    string type = 4;
+}
+
+message StoreListObjectsResponse {
+    repeated string objects = 1;
+}
+
+message StoreReadObj {
+    optional string id = 1;
+    optional string type = 2;
+}
+
+message StoreReadRequest {
+    string store_id = 1;
+    optional string relation = 2;
+    optional StoreReadObj source = 3;
+    optional StoreReadObj target = 4;
+}
+
+message StoreReadResponse {
+    repeated StoreRelationTuple objects = 1;
+}

@@ -1,0 +1,30 @@
+version: 2.1
+
+# Define a job to be invoked later in a workflow.
+# See: https://circleci.com/docs/configuration-reference/#jobs
+jobs:
+  grpc-tests:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - checkout
+      - run:
+          name: Install Docker Compose
+          environment:
+            COMPOSE_VERSION: '1.29.2'
+          command: |
+            curl -L "https://github.com/docker/compose/releases/download/${COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)" -o ~/docker-compose
+            chmod +x ~/docker-compose
+            sudo mv ~/docker-compose /usr/local/bin/docker-compose
+      - setup_remote_docker
+      - run:
+          name: Build images of services declared in docker-compose.yml
+          command: docker-compose -f .circleci/compose-test-grpc.yml build
+      - run:
+          name: Run grpc tests in docker-compose.yml
+          command: docker-compose -f .circleci/compose-test-grpc.yml run server_grpc pytest
+
+workflows:
+  grpc-build-and-test-workflow:
+    jobs:
+      - grpc-tests

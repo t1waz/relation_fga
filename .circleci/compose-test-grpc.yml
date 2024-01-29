@@ -1,0 +1,23 @@
+version: "3.9"
+
+
+volumes:
+  sql_data: {}
+
+
+services:
+  server_grpc:
+    build:
+      context: ../
+      dockerfile: ./compose/grpc/Dockerfile
+    depends_on:
+      graph-db:
+        condition: service_healthy
+
+  graph-db:
+    image: memgraph/memgraph-platform
+    healthcheck:
+      test: ["CMD", "nc", "-z", "-v", "graph-db", "7687"]
+      interval: 5s
+      timeout: 5s
+      retries: 3

@@ -1,0 +1,39 @@
+version: "3.9"
+
+
+networks:
+  graph_fga:
+    name: graph_fga
+
+
+services:
+  server_grpc:
+    build:
+      context: .
+      dockerfile: ./compose/grpc/Dockerfile
+    volumes:
+      - ./src:/app
+    ports:
+      - 0.0.0.0:9999:9999
+    command: python server_grpc/main.py
+    depends_on:
+      graph-db:
+        condition: service_healthy
+    networks:
+      - graph_fga
+    env_file: .envs
+
+  graph-db:
+    image: memgraph/memgraph-platform
+    networks:
+      - graph_fga
+    healthcheck:
+      test: ["CMD", "nc", "-z", "-v", "graph-db", "7687"]
+      interval: 5s
+      timeout: 5s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 4G

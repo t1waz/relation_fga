@@ -1,0 +1,110 @@
+version: "3.9"
+
+
+networks:
+  graph_fga:
+    name: graph_fga
+
+
+services:
+  server_grpc:
+    build:
+      context: ../../
+      dockerfile: compose/grpc/Dockerfile
+    volumes:
+      - ../../src:/app
+    ports:
+      - 0.0.0.0:9999:9999
+    command: python server_grpc/main.py
+    depends_on:
+      graph-db:
+        condition: service_healthy
+    networks:
+      - graph_fga
+    env_file: ../../.envs
+
+  openfga:
+    image: openfga/openfga:latest
+    command: run --authn-method=none
+    depends_on:
+      sql-db:
+        condition: service_healthy
+      openfga-migrate:
+        condition: service_completed_successfully
+    environment:
+      OPENFGA_DATASTORE_ENGINE: postgres
+      OPENFGA_DATASTORE_URI: postgres://postgres:postgres@sql-db:5432/postgres
+      OPENFGA_DATASTORE_MAX_OPEN_CONNS: 1000
+      OPENFGA_HTTP_UPSTREAM_TIMEOUT: 10000s
+      OPENFGA_LIST_OBJECTS_DEADLINE: 1000s
+      OPENFGA_TRACE_ENABLED: false
+      OPENFGA_TRACE_SAMPLE_RATIO: 1
+      OPENFGA_LOG_LEVEL: none
+      OPENFGA_LIST_OBJECTS_MAX_RESULTS: 0
+      OPENFGA_METRICS_ENABLE_RPC_HISTOGRAMS: true
+    ports:
+      - "127.0.0.1:7777:8080"
+    healthcheck:
+      test: ["CMD", "/usr/local/bin/grpc_health_probe", "-addr=openfga:8081"]
+      interval: 5s
+      timeout: 30s
+      retries: 3
+    networks:
+      - graph_fga
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 4G
+
+  openfga-migrate:
+    depends_on:
+      sql-db:
+        condition: service_healthy
+    image: openfga/openfga:latest
+    container_name: migrate
+    command: migrate
+    environment:
+      - OPENFGA_DATASTORE_ENGINE=postgres
+      - OPENFGA_DATASTORE_URI=postgres://postgres:postgres@sql-db:5432/postgres
+    networks:
+      - graph_fga
+
+  sql-db:
+    image: postgres:15-alpine
+    ports:
+      - "127.0.0.1:45432:5432"
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+    healthcheck:
+      test: pg_isready -U postgres -d postgres -h sql-db -p 5432
+      interval: 5s
+      timeout: 10s
+      retries: 5
+    networks:
+      - graph_fga
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 4G
+
+  graph-db:
+    image: memgraph/memgraph-platform
+    ports:
+      - 0.0.0.0:3002:3000
+      - 0.0.0.0:7687:7687
+    networks:
+      - graph_fga
+    healthcheck:
+      test: ["CMD", "nc", "-z", "-v", "graph-db", "7687"]
+      interval: 5s
+      timeout: 5s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 4G
