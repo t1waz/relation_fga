@@ -11,7 +11,7 @@ from benchmark.benchmark.settings import *
 
 RELATIONS = ["editor", "viewer"]
 
-MAGNITUDE = 1
+MAGNITUDE = 10
 
 
 class GraphService:
@@ -91,8 +91,12 @@ def generate_test_data(graph_service: GraphService, openfga_service: OpenFgaServ
             target=f"unit:{random.randint(1, 100)}",
             relation="member",
         )
-        graph_service.save(relation_tuple=user)
-        openfga_service.save(relation_tuple=user)
+        try:
+            graph_service.save(relation_tuple=user)
+            openfga_service.save(relation_tuple=user)
+        except:
+            print(user)
+            pass
 
     print("loading issues")
     for i in tqdm(range(int(10000 * MAGNITUDE))):
@@ -105,8 +109,12 @@ def generate_test_data(graph_service: GraphService, openfga_service: OpenFgaServ
             issue = RelationTuple(
                 source=f"user:1", target=f"issue:{i}", relation=random.choice(RELATIONS)
             )
-        graph_service.save(relation_tuple=issue)
-        openfga_service.save(relation_tuple=issue)
+        try:
+            graph_service.save(relation_tuple=issue)
+            openfga_service.save(relation_tuple=issue)
+        except:
+            print(issue)
+            pass
 
     print("loading unit issue")
     for _ in tqdm(range(int(500 * MAGNITUDE))):
@@ -115,8 +123,12 @@ def generate_test_data(graph_service: GraphService, openfga_service: OpenFgaServ
             target=f"issue:{random.randint(1, 100000)}",
             relation=random.choice(RELATIONS),
         )
-        graph_service.save(relation_tuple=unit)
-        openfga_service.save(relation_tuple=unit)
+        try:
+            graph_service.save(relation_tuple=unit)
+            openfga_service.save(relation_tuple=unit)
+        except:
+            print(unit)
+            pass
 
 
 if __name__ == "__main__":

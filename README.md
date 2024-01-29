@@ -1,6 +1,28 @@
 RELATION FGA
 ============
+Implementation of (F)ine (G)rade (A)ccess inspired by OpenFGA
 
+The motivation behind this project was to create a service that could handle the object list better than OpenFGA https://openfga.dev/. The mentioned solution is based on a relational database. The topic of permissions and accesses in my opinion is graphical in nature, so I decided to try it with graphs, preliminary benchmarks show a very big performance difference.
+
+# How it works:
+1. the DSL logic is parsed using ply to graph in networkx. An AuthModel is created
+2. the AuthModelService using the AuthService generates access paths on the graph from object A to object B. It filters them by the required permissions
+3. the access paths are converted into cypher commands that fly to memgraph.
+4. everything is wrapped in the grpc client
+
+# Benchmark
+3 tests were conducted: 
+
+    -1000 objects
+    -10,000 objects
+    -100,000 objects
+
+For one user with id "1" who has relatively the most connections 100 requests for his access were carried out
+![Alt text](benchmark.png)
+As you can see, RelationFGA is almost an order of magnitude faster than OpenFga. All the files needed to run the benchmark with instructions are in the src/benchmark path
+
+# Disclaimer
+I am very open to criticism, I probably made mistakes
 
 
 DEV GUIDE
