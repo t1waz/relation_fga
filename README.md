@@ -1,6 +1,6 @@
 RELATION FGA
 ============
-Implementation of (F)ine (G)rade (A)ccess inspired by OpenFGA
+Implementation of (F)ine (G)rade (A)uthorization inspired by OpenFGA
 
 The motivation behind this project was to create a service that could handle the object list better than OpenFGA https://openfga.dev/. The mentioned solution is based on a relational database. The topic of permissions and accesses in my opinion is graphical in nature, so I decided to try it with graphs, preliminary benchmarks show a very big performance difference.
 
