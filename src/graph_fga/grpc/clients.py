@@ -98,7 +98,12 @@ class GraphFgaGrpcClient:
         return response.allowed
 
     def store_list_objects(
-        self, store_id, user: str, permission: str, type: str
+        self,
+        store_id,
+        user: str,
+        permission: str,
+        type: str,
+        contextual_tuples: Optional[List[Dict]] = None,
     ) -> List[str]:
         response = self._stub.store_list_objects(
             messages_pb2.StoreListObjectsRequest(
@@ -106,6 +111,12 @@ class GraphFgaGrpcClient:
                 type=type,
                 store_id=store_id,
                 permission=permission,
+                contextual_tuples=[
+                    messages_pb2.StoreRelationTuple(
+                        user=d["user"], relation=d["relation"], object=d["object"]
+                    )
+                    for d in contextual_tuples or []
+                ],
             )
         )
 

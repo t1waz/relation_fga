@@ -487,6 +487,143 @@ class TestMainListObjects:
 
         assert response.objects == []
 
+    def test_graph_fga_server_get_list_objects_contextual_single_object(
+        self, grpc_stub, f_auth_model_1, relation_tuple_repository
+    ):
+        desired_object_id = "11112"
+        common_group = "group:123-11"
+        desired_user = "user:11-22"
+        desired_object = f"issue:{desired_object_id}"
+
+        relation_tuple_repository.save(
+            store_id=f_auth_model_1.id,
+            relation_tuple=RelationTuple(
+                source=f"{common_group}#comrade",
+                target=desired_object,
+                relation="manager",
+            ),
+        )
+
+        response = grpc_stub.store_list_objects(
+            request=messages_pb2.StoreListObjectsRequest(
+                store_id=f_auth_model_1.id,
+                type="issue",
+                user=desired_user,
+                permission="can_view",
+            )
+        )
+
+        assert response.objects == []
+
+        response = grpc_stub.store_list_objects(
+            request=messages_pb2.StoreListObjectsRequest(
+                store_id=f_auth_model_1.id,
+                type="issue",
+                user=desired_user,
+                permission="can_view",
+                contextual_tuples=[
+                    messages_pb2.StoreRelationTuple(
+                        user=desired_user, object=common_group, relation="comrade"
+                    )
+                ],
+            )
+        )
+
+        assert response.objects == [desired_object_id]
+
+    def test_graph_fga_server_get_list_objects_contextual_will_not_persist_contextual(
+        self, grpc_stub, f_auth_model_1, relation_tuple_repository
+    ):
+        desired_object_id = "11112"
+        common_group = "group:123-11"
+        desired_user = "user:11-22"
+        desired_object = f"issue:{desired_object_id}"
+
+        relation_tuple_repository.save(
+            store_id=f_auth_model_1.id,
+            relation_tuple=RelationTuple(
+                source=f"{common_group}#comrade",
+                target=desired_object,
+                relation="manager",
+            ),
+        )
+
+        grpc_stub.store_list_objects(
+            request=messages_pb2.StoreListObjectsRequest(
+                store_id=f_auth_model_1.id,
+                type="issue",
+                user=desired_user,
+                permission="can_view",
+                contextual_tuples=[
+                    messages_pb2.StoreRelationTuple(
+                        user=desired_user, object=common_group, relation="comrade"
+                    )
+                ],
+            )
+        )
+
+        tuples = grpc_stub.store_read(
+            request=messages_pb2.StoreReadRequest(
+                store_id=f_auth_model_1.id,
+                source=messages_pb2.StoreReadObj(
+                    type="user",
+                ),
+            )
+        )
+
+        assert len(tuples.objects) == 0
+
+    def test_graph_fga_server_get_list_objects_contextual_multiple_object(
+        self, grpc_stub, f_auth_model_1, relation_tuple_repository
+    ):
+        desired_objects_ids = ["11112", "22221"]
+        common_group = "group:123-11"
+        desired_user = "user:11-22"
+
+        relation_tuple_repository.save(
+            store_id=f_auth_model_1.id,
+            relation_tuple=RelationTuple(
+                source=f"{common_group}#comrade",
+                target=f"issue:{desired_objects_ids[0]}",
+                relation="manager",
+            ),
+        )
+        relation_tuple_repository.save(
+            store_id=f_auth_model_1.id,
+            relation_tuple=RelationTuple(
+                source=desired_user,
+                target=f"issue:{desired_objects_ids[1]}",
+                relation="viewer",
+            ),
+        )
+
+        response = grpc_stub.store_list_objects(
+            request=messages_pb2.StoreListObjectsRequest(
+                store_id=f_auth_model_1.id,
+                type="issue",
+                user=desired_user,
+                permission="can_view",
+            )
+        )
+
+        assert response.objects == [desired_objects_ids[1]]
+
+        response = grpc_stub.store_list_objects(
+            request=messages_pb2.StoreListObjectsRequest(
+                store_id=f_auth_model_1.id,
+                type="issue",
+                user=desired_user,
+                permission="can_view",
+                contextual_tuples=[
+                    messages_pb2.StoreRelationTuple(
+                        user=desired_user, object=common_group, relation="comrade"
+                    )
+                ],
+            )
+        )
+
+        assert set(response.objects) == set(desired_objects_ids)
+
 
 class TestMainStoreCreate:
     def test_graph_fga_server_create_store_invalid_model(self, grpc_stub):

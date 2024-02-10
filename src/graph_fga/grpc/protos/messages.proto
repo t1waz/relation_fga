@@ -44,6 +44,7 @@ message StoreListObjectsRequest {
     string user = 2;
     string permission = 3;
     string type = 4;
+    repeated StoreRelationTuple contextual_tuples = 5;
 }
 
 message StoreListObjectsResponse {

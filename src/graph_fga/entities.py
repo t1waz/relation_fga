@@ -74,6 +74,7 @@ class ListObjectsRequest:
     source: str
     target_type: str
     permission: str
+    contextual_tuples: Optional[List[RelationTuple]] = None
 
     @cached_property
     def source_type(self) -> str:

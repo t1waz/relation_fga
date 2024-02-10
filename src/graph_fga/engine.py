@@ -136,9 +136,17 @@ class PermissionEngine:
             cmd.add_cmd_str(cmd_str=cmd_str)
 
         with self._driver.session(database="memgraph") as session:
-            logger.debug(f"get objects cmd: {cmd.graph_cmd}")
-            result = session.run(cmd.graph_cmd, database_="memgraph")
-            data = result.data()
+            with session.begin_transaction() as tx:
+                for context_tuple in list_objects_request.contextual_tuples:
+                    self._relation_tuple_repository.save(
+                        store_id=store_id, relation_tuple=context_tuple, tx=tx
+                    )
+
+                logger.debug(f"get objects cmd: {cmd.graph_cmd}")
+                result = tx.run(cmd.graph_cmd, database_="memgraph")
+                data = result.data()
+
+                tx.rollback()
 
         return [str(d) for d in data[0][cmd.result_key]]
 
