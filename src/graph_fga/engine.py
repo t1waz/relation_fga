@@ -16,12 +16,19 @@ from graph_fga.interpreter.auth_model import AuthModel
 from graph_fga.interpreter.entites import ModelType
 from graph_fga.interpreter.services import AuthModelService
 from graph_fga.logger import logger
+from graph_fga.repository import RelationTupleRepository
 
 
 class PermissionEngine:
-    def __init__(self, driver, model: AuthModel) -> None:
+    def __init__(
+        self,
+        driver,
+        model: AuthModel,
+        relation_tuple_repository: RelationTupleRepository,
+    ) -> None:
         self._model = model
         self._driver = driver
+        self._relation_tuple_repository = relation_tuple_repository
         self._model_service = AuthModelService(auth_model=self._model)
 
     def check_permission(self, store_id: str, check_request: CheckRequest) -> bool:
@@ -50,9 +57,17 @@ class PermissionEngine:
             cmd.add_cmd_str(cmd_str=cmd_str)
 
         with self._driver.session(database="memgraph") as session:
-            logger.debug(f"check permission cmd: {cmd.graph_cmd}")
-            result = session.run(cmd.graph_cmd, database_="memgraph")
-            data = result.data()
+            with session.begin_transaction() as tx:
+                for context_tuple in check_request.contextual_tuples:
+                    self._relation_tuple_repository.save(
+                        store_id=store_id, relation_tuple=context_tuple, tx=tx
+                    )
+
+                logger.debug(f"check permission cmd: {cmd.graph_cmd}")
+                result = tx.run(cmd.graph_cmd, database_="memgraph")
+                data = result.data()
+
+                tx.rollback()
 
         result = next(iter(data[0][cmd.result_key]), False)
 

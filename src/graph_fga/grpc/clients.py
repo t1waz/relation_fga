@@ -1,8 +1,10 @@
-from graph_fga.grpc.pb2 import services_pb2_grpc
-from graph_fga.grpc.pb2 import messages_pb2
+from typing import List, Union, Optional, Dict
+
 import grpc
-from typing import List, Union, Optional
+
 from graph_fga.entities import RelationTuple
+from graph_fga.grpc.pb2 import messages_pb2
+from graph_fga.grpc.pb2 import services_pb2_grpc
 
 
 class GraphFgaGrpcClient:
@@ -71,7 +73,12 @@ class GraphFgaGrpcClient:
         return response.status
 
     def store_check(
-        self, store_id: str, user: str, object: str, permission: str
+        self,
+        store_id: str,
+        user: str,
+        object: str,
+        permission: str,
+        contextual_tuples: Optional[List[Dict]] = None,
     ) -> bool:
         response = self._stub.store_check(
             messages_pb2.StoreCheckRequest(
@@ -79,6 +86,12 @@ class GraphFgaGrpcClient:
                 object=object,
                 store_id=store_id,
                 permission=permission,
+                contextual_tuples=[
+                    messages_pb2.StoreRelationTuple(
+                        user=d["user"], relation=d["relation"], object=d["object"]
+                    )
+                    for d in contextual_tuples or []
+                ],
             )
         )
 

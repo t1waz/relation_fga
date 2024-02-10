@@ -14,7 +14,7 @@ _sym_db = _symbol_database.Default()
 
 
 DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(
-    b'\n\x0emessages.proto"D\n\x12StoreRelationTuple\x12\x0c\n\x04user\x18\x01 \x01(\t\x12\x10\n\x08relation\x18\x02 \x01(\t\x12\x0e\n\x06object\x18\x03 \x01(\t"p\n\x11StoreWriteRequest\x12\x10\n\x08store_id\x18\x01 \x01(\t\x12#\n\x06writes\x18\x02 \x03(\x0b\x32\x13.StoreRelationTuple\x12$\n\x07\x64\x65letes\x18\x03 \x03(\x0b\x32\x13.StoreRelationTuple"$\n\x12StoreWriteResponse\x12\x0e\n\x06status\x18\x01 \x01(\t"W\n\x11StoreCheckRequest\x12\x0c\n\x04user\x18\x01 \x01(\t\x12\x12\n\npermission\x18\x02 \x01(\t\x12\x0e\n\x06object\x18\x03 \x01(\t\x12\x10\n\x08store_id\x18\x04 \x01(\t"%\n\x12StoreCheckResponse\x12\x0f\n\x07\x61llowed\x18\x01 \x01(\x08"#\n\x12StoreCreateRequest\x12\r\n\x05model\x18\x01 \x01(\t"7\n\x13StoreCreateResponse\x12\x0e\n\x06status\x18\x01 \x01(\t\x12\x10\n\x08store_id\x18\x02 \x01(\t"[\n\x17StoreListObjectsRequest\x12\x10\n\x08store_id\x18\x01 \x01(\t\x12\x0c\n\x04user\x18\x02 \x01(\t\x12\x12\n\npermission\x18\x03 \x01(\t\x12\x0c\n\x04type\x18\x04 \x01(\t"+\n\x18StoreListObjectsResponse\x12\x0f\n\x07objects\x18\x01 \x03(\t"B\n\x0cStoreReadObj\x12\x0f\n\x02id\x18\x01 \x01(\tH\x00\x88\x01\x01\x12\x11\n\x04type\x18\x02 \x01(\tH\x01\x88\x01\x01\x42\x05\n\x03_idB\x07\n\x05_type"\xa6\x01\n\x10StoreReadRequest\x12\x10\n\x08store_id\x18\x01 \x01(\t\x12\x15\n\x08relation\x18\x02 \x01(\tH\x00\x88\x01\x01\x12"\n\x06source\x18\x03 \x01(\x0b\x32\r.StoreReadObjH\x01\x88\x01\x01\x12"\n\x06target\x18\x04 \x01(\x0b\x32\r.StoreReadObjH\x02\x88\x01\x01\x42\x0b\n\t_relationB\t\n\x07_sourceB\t\n\x07_target"9\n\x11StoreReadResponse\x12$\n\x07objects\x18\x01 \x03(\x0b\x32\x13.StoreRelationTupleb\x06proto3'
+    b'\n\x0emessages.proto"D\n\x12StoreRelationTuple\x12\x0c\n\x04user\x18\x01 \x01(\t\x12\x10\n\x08relation\x18\x02 \x01(\t\x12\x0e\n\x06object\x18\x03 \x01(\t"p\n\x11StoreWriteRequest\x12\x10\n\x08store_id\x18\x01 \x01(\t\x12#\n\x06writes\x18\x02 \x03(\x0b\x32\x13.StoreRelationTuple\x12$\n\x07\x64\x65letes\x18\x03 \x03(\x0b\x32\x13.StoreRelationTuple"$\n\x12StoreWriteResponse\x12\x0e\n\x06status\x18\x01 \x01(\t"\x87\x01\n\x11StoreCheckRequest\x12\x0c\n\x04user\x18\x01 \x01(\t\x12\x12\n\npermission\x18\x02 \x01(\t\x12\x0e\n\x06object\x18\x03 \x01(\t\x12\x10\n\x08store_id\x18\x04 \x01(\t\x12.\n\x11\x63ontextual_tuples\x18\x05 \x03(\x0b\x32\x13.StoreRelationTuple"%\n\x12StoreCheckResponse\x12\x0f\n\x07\x61llowed\x18\x01 \x01(\x08"#\n\x12StoreCreateRequest\x12\r\n\x05model\x18\x01 \x01(\t"7\n\x13StoreCreateResponse\x12\x0e\n\x06status\x18\x01 \x01(\t\x12\x10\n\x08store_id\x18\x02 \x01(\t"[\n\x17StoreListObjectsRequest\x12\x10\n\x08store_id\x18\x01 \x01(\t\x12\x0c\n\x04user\x18\x02 \x01(\t\x12\x12\n\npermission\x18\x03 \x01(\t\x12\x0c\n\x04type\x18\x04 \x01(\t"+\n\x18StoreListObjectsResponse\x12\x0f\n\x07objects\x18\x01 \x03(\t"B\n\x0cStoreReadObj\x12\x0f\n\x02id\x18\x01 \x01(\tH\x00\x88\x01\x01\x12\x11\n\x04type\x18\x02 \x01(\tH\x01\x88\x01\x01\x42\x05\n\x03_idB\x07\n\x05_type"\xa6\x01\n\x10StoreReadRequest\x12\x10\n\x08store_id\x18\x01 \x01(\t\x12\x15\n\x08relation\x18\x02 \x01(\tH\x00\x88\x01\x01\x12"\n\x06source\x18\x03 \x01(\x0b\x32\r.StoreReadObjH\x01\x88\x01\x01\x12"\n\x06target\x18\x04 \x01(\x0b\x32\r.StoreReadObjH\x02\x88\x01\x01\x42\x0b\n\t_relationB\t\n\x07_sourceB\t\n\x07_target"9\n\x11StoreReadResponse\x12$\n\x07objects\x18\x01 \x03(\x0b\x32\x13.StoreRelationTupleb\x06proto3'
 )
 
 _globals = globals()
@@ -28,22 +28,22 @@ if _descriptor._USE_C_DESCRIPTORS == False:
     _globals["_STOREWRITEREQUEST"]._serialized_end = 200
     _globals["_STOREWRITERESPONSE"]._serialized_start = 202
     _globals["_STOREWRITERESPONSE"]._serialized_end = 238
-    _globals["_STORECHECKREQUEST"]._serialized_start = 240
-    _globals["_STORECHECKREQUEST"]._serialized_end = 327
-    _globals["_STORECHECKRESPONSE"]._serialized_start = 329
-    _globals["_STORECHECKRESPONSE"]._serialized_end = 366
-    _globals["_STORECREATEREQUEST"]._serialized_start = 368
-    _globals["_STORECREATEREQUEST"]._serialized_end = 403
-    _globals["_STORECREATERESPONSE"]._serialized_start = 405
-    _globals["_STORECREATERESPONSE"]._serialized_end = 460
-    _globals["_STORELISTOBJECTSREQUEST"]._serialized_start = 462
-    _globals["_STORELISTOBJECTSREQUEST"]._serialized_end = 553
-    _globals["_STORELISTOBJECTSRESPONSE"]._serialized_start = 555
-    _globals["_STORELISTOBJECTSRESPONSE"]._serialized_end = 598
-    _globals["_STOREREADOBJ"]._serialized_start = 600
-    _globals["_STOREREADOBJ"]._serialized_end = 666
-    _globals["_STOREREADREQUEST"]._serialized_start = 669
-    _globals["_STOREREADREQUEST"]._serialized_end = 835
-    _globals["_STOREREADRESPONSE"]._serialized_start = 837
-    _globals["_STOREREADRESPONSE"]._serialized_end = 894
+    _globals["_STORECHECKREQUEST"]._serialized_start = 241
+    _globals["_STORECHECKREQUEST"]._serialized_end = 376
+    _globals["_STORECHECKRESPONSE"]._serialized_start = 378
+    _globals["_STORECHECKRESPONSE"]._serialized_end = 415
+    _globals["_STORECREATEREQUEST"]._serialized_start = 417
+    _globals["_STORECREATEREQUEST"]._serialized_end = 452
+    _globals["_STORECREATERESPONSE"]._serialized_start = 454
+    _globals["_STORECREATERESPONSE"]._serialized_end = 509
+    _globals["_STORELISTOBJECTSREQUEST"]._serialized_start = 511
+    _globals["_STORELISTOBJECTSREQUEST"]._serialized_end = 602
+    _globals["_STORELISTOBJECTSRESPONSE"]._serialized_start = 604
+    _globals["_STORELISTOBJECTSRESPONSE"]._serialized_end = 647
+    _globals["_STOREREADOBJ"]._serialized_start = 649
+    _globals["_STOREREADOBJ"]._serialized_end = 715
+    _globals["_STOREREADREQUEST"]._serialized_start = 718
+    _globals["_STOREREADREQUEST"]._serialized_end = 884
+    _globals["_STOREREADRESPONSE"]._serialized_start = 886
+    _globals["_STOREREADRESPONSE"]._serialized_end = 943
 # @@protoc_insertion_point(module_scope)

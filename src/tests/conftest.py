@@ -27,7 +27,7 @@ def graph_driver():
     yield GraphDatabase.driver(uri="bolt://graph-db:7687", auth=("", ""))
 
 
-@pytest.fixture()
+@pytest.fixture(autouse=True)
 def clear_graph_db(graph_driver):
     yield
     with graph_driver.session(database="memgraph") as session:
