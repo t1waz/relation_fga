@@ -115,6 +115,12 @@ class GraphFgaServicer(services_pb2_grpc.GraphFgaServiceServicer):
                     source=request.user,
                     target=request.object,
                     permission=request.permission,
+                    contextual_tuples=[
+                        RelationTuple(
+                            source=d.user, target=d.object, relation=d.relation
+                        )
+                        for d in request.contextual_tuples
+                    ],
                 )
             )
         )

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from functools import cached_property
-from typing import Optional
+from typing import Optional, List
 
 from graph_fga.utils import get_type_from_gid, get_id_from_gid
 
@@ -50,6 +50,7 @@ class CheckRequest:
     source: str
     target: str
     permission: str
+    contextual_tuples: Optional[List[RelationTuple]] = None
 
     @cached_property
     def target_type(self) -> str:

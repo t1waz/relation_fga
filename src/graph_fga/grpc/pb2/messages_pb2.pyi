@@ -48,21 +48,26 @@ class StoreWriteResponse(_message.Message):
     def __init__(self, status: _Optional[str] = ...) -> None: ...
 
 class StoreCheckRequest(_message.Message):
-    __slots__ = ("user", "permission", "object", "store_id")
+    __slots__ = ("user", "permission", "object", "store_id", "contextual_tuples")
     USER_FIELD_NUMBER: _ClassVar[int]
     PERMISSION_FIELD_NUMBER: _ClassVar[int]
     OBJECT_FIELD_NUMBER: _ClassVar[int]
     STORE_ID_FIELD_NUMBER: _ClassVar[int]
+    CONTEXTUAL_TUPLES_FIELD_NUMBER: _ClassVar[int]
     user: str
     permission: str
     object: str
     store_id: str
+    contextual_tuples: _containers.RepeatedCompositeFieldContainer[StoreRelationTuple]
     def __init__(
         self,
         user: _Optional[str] = ...,
         permission: _Optional[str] = ...,
         object: _Optional[str] = ...,
         store_id: _Optional[str] = ...,
+        contextual_tuples: _Optional[
+            _Iterable[_Union[StoreRelationTuple, _Mapping]]
+        ] = ...,
     ) -> None: ...
 
 class StoreCheckResponse(_message.Message):

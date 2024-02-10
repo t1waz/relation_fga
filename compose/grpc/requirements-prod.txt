@@ -8,3 +8,4 @@ ply==3.11
 protobuf==4.25.1
 pytz==2023.3.post1
 networkx==3.2.1
+httpx==0.26.0

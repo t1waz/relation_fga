@@ -20,8 +20,9 @@ def get_permission_engine(store_id: str) -> PermissionEngine:
         raise ValueError("invalid store_id")
 
     return PermissionEngine(
-        driver=fga_driver,
         model=auth_model,
+        driver=fga_driver,
+        relation_tuple_repository=relation_tuple_repository,
     )
 
 

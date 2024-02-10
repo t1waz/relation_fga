@@ -23,6 +23,7 @@ message StoreCheckRequest {
     string permission = 2;
     string object = 3;
     string store_id = 4;
+    repeated StoreRelationTuple contextual_tuples = 5;
 }
 
 message StoreCheckResponse {

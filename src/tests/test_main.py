@@ -658,7 +658,9 @@ class TestMainCheck:
         relation_tuple_repository.save(
             store_id=f_auth_model_2.id,
             relation_tuple=RelationTuple(
-                source=f"{common_unit}#comrade", target=desired_object, relation="viewer"
+                source=f"{common_unit}#comrade",
+                target=desired_object,
+                relation="viewer",
             ),
         )
         relation_tuple_repository.save(
@@ -806,6 +808,90 @@ class TestMainCheck:
         )
 
         assert response.allowed is True
+
+    def test_graph_fga_server_check_with_contextual_tuple(
+        self, grpc_stub, f_auth_model_1, relation_tuple_repository
+    ):
+        common_group = "group:123-11"
+        desired_user = "user:11-22"
+        desired_object = "issue:11112"
+
+        relation_tuple_repository.save(
+            store_id=f_auth_model_1.id,
+            relation_tuple=RelationTuple(
+                source=f"{common_group}#comrade",
+                target=desired_object,
+                relation="manager",
+            ),
+        )
+
+        response = grpc_stub.store_check(
+            request=messages_pb2.StoreCheckRequest(
+                store_id=f_auth_model_1.id,
+                user=desired_user,
+                object=desired_object,
+                permission="can_edit",
+            )
+        )
+
+        assert response.allowed is False
+
+        response = grpc_stub.store_check(
+            request=messages_pb2.StoreCheckRequest(
+                store_id=f_auth_model_1.id,
+                user=desired_user,
+                object=desired_object,
+                permission="can_edit",
+                contextual_tuples=[
+                    messages_pb2.StoreRelationTuple(
+                        user=desired_user, object=common_group, relation="comrade"
+                    )
+                ],
+            )
+        )
+
+        assert response.allowed is True
+
+    def test_graph_fga_server_check_with_contextual_tuple_does_not_persist_contextual(
+        self, grpc_stub, f_auth_model_1, relation_tuple_repository
+    ):
+        common_group = "group:123-11"
+        desired_user = "user:11-22"
+        desired_object = "issue:11112"
+
+        relation_tuple_repository.save(
+            store_id=f_auth_model_1.id,
+            relation_tuple=RelationTuple(
+                source=f"{common_group}#comrade",
+                target=desired_object,
+                relation="manager",
+            ),
+        )
+
+        grpc_stub.store_check(
+            request=messages_pb2.StoreCheckRequest(
+                store_id=f_auth_model_1.id,
+                user=desired_user,
+                object=desired_object,
+                permission="can_edit",
+                contextual_tuples=[
+                    messages_pb2.StoreRelationTuple(
+                        user=desired_user, object=common_group, relation="comrade"
+                    )
+                ],
+            )
+        )
+
+        tuples = grpc_stub.store_read(
+            request=messages_pb2.StoreReadRequest(
+                store_id=f_auth_model_1.id,
+                source=messages_pb2.StoreReadObj(
+                    type="user",
+                ),
+            )
+        )
+
+        assert len(tuples.objects) == 0
 
 
 class TestMainWrite:
@@ -1252,8 +1338,12 @@ class TestMainDelete:
         self, grpc_stub, f_auth_model_1, relation_tuple_repository
     ):
         desired_relation_tuples = [
-            RelationTuple(source="group:1#comrade", relation="viewer", target="issue:1"),
-            RelationTuple(source="group:2#comrade", relation="manager", target="issue:1"),
+            RelationTuple(
+                source="group:1#comrade", relation="viewer", target="issue:1"
+            ),
+            RelationTuple(
+                source="group:2#comrade", relation="manager", target="issue:1"
+            ),
         ]
         for relation_tuple in desired_relation_tuples:
             relation_tuple_repository.save(
