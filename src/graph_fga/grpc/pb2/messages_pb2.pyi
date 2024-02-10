@@ -93,21 +93,26 @@ class StoreCreateResponse(_message.Message):
     ) -> None: ...
 
 class StoreListObjectsRequest(_message.Message):
-    __slots__ = ("store_id", "user", "permission", "type")
+    __slots__ = ("store_id", "user", "permission", "type", "contextual_tuples")
     STORE_ID_FIELD_NUMBER: _ClassVar[int]
     USER_FIELD_NUMBER: _ClassVar[int]
     PERMISSION_FIELD_NUMBER: _ClassVar[int]
     TYPE_FIELD_NUMBER: _ClassVar[int]
+    CONTEXTUAL_TUPLES_FIELD_NUMBER: _ClassVar[int]
     store_id: str
     user: str
     permission: str
     type: str
+    contextual_tuples: _containers.RepeatedCompositeFieldContainer[StoreRelationTuple]
     def __init__(
         self,
         store_id: _Optional[str] = ...,
         user: _Optional[str] = ...,
         permission: _Optional[str] = ...,
         type: _Optional[str] = ...,
+        contextual_tuples: _Optional[
+            _Iterable[_Union[StoreRelationTuple, _Mapping]]
+        ] = ...,
     ) -> None: ...
 
 class StoreListObjectsResponse(_message.Message):
