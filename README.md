@@ -45,3 +45,7 @@ TESTS:
 GRPC tests:
 
     $ docker compose run server_grpc pytest
+
+Backend tests:
+
+    $ docker compose -f docker-compose-test.yml run backend pytest --asyncio-mode=auto

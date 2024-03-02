@@ -10,8 +10,8 @@ from typing import List
 import pytest
 from _pytest.fixtures import SubRequest
 
-from backend.core.entites import User
-from backend.repositories import user_repository
+from backend.core.entites import User, Store
+from backend.repositories import user_repository, store_repository
 
 
 TEST_PORT = 8000  # TODO
@@ -68,9 +68,39 @@ def session():
 
 @pytest.fixture
 async def f_user_1():
-    user_1 = User(email="example@example.com", password="pass", id=uuid.uuid4())
+    user_1 = User(email="example@example.com", password="pass")
     await user_repository.save(user=user_1)
 
     yield user_1
 
     await user_repository.delete(user=user_1)
+
+
+@pytest.fixture
+async def f_store_1(f_user_1):
+    store_1 = Store(name="store_1", owner=f_user_1)
+    await store_repository.save(store=store_1)
+
+    yield store_1
+
+    await store_repository.delete(store=store_1)
+
+
+@pytest.fixture
+async def f_store_2(f_user_1):
+    store_2 = Store(name="store_2", owner=f_user_1)
+    await store_repository.save(store=store_2)
+
+    yield store_2
+
+    await store_repository.delete(store=store_2)
+
+
+@pytest.fixture
+async def f_store_3(f_user_1):
+    store_3 = Store(name="store_3", owner=f_user_1)
+    await store_repository.save(store=store_3)
+
+    yield store_3
+
+    await store_repository.delete(store=store_3)
