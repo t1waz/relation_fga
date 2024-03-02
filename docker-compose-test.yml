@@ -1,0 +1,36 @@
+version: "3.9"
+
+
+networks:
+  graph_fga:
+    name: graph_fga
+
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: ./compose/backend/Dockerfile
+    volumes:
+      - ./src/backend:/app/backend
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - graph_fga
+    env_file: .envs
+
+  mongodb:
+    image: mongo:7.0.6
+    networks:
+      - graph_fga
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh mongodb:27017/test --quiet
+      interval: 5s
+      timeout: 5s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 2G

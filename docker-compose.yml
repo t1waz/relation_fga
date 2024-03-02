@@ -23,6 +23,19 @@ services:
       - graph_fga
     env_file: .envs
 
+  backend:
+    build:
+      context: .
+      dockerfile: ./compose/backend/Dockerfile
+    volumes:
+      - ./src/backend:/app/backend
+    ports:
+      - 0.0.0.0:8000:8000
+    command: python main.py
+    networks:
+      - graph_fga
+    env_file: .envs
+
   graph-db:
     image: memgraph/memgraph-platform
     networks:

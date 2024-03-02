@@ -16,6 +16,7 @@ RUN pip install --upgrade pip \
     && pip install -r requirements-prod.txt
 
 COPY ./src/server_grpc /app/server_grpc
+
 COPY ./src/graph_fga /app/graph_fga
 
 RUN find /app -type d -name .pytest_cache -exec rm -rf {} +
