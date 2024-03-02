@@ -10,11 +10,11 @@ ENV PATH="/venv/bin:$PATH"
 
 WORKDIR /app
 
-COPY ./compose/http/requirements.txt /app/
+COPY ./compose/backend/requirements.txt /app/
 
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY ./src/backend /app/server_http
+COPY ./src/backend /app/backend
 
 EXPOSE 8000
 

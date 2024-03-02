@@ -15,7 +15,3 @@ COPY ./compose/backend/requirements.txt /app/
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY ./src/backend /app/backend
-
-EXPOSE 8000
-
-CMD ["python", "server_http/main.py"]

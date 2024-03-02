@@ -1,0 +1,6 @@
+import os
+
+
+SECRET_KEY = os.getenv("BACKEND_SECRET_KEY")
+MONGODB_HOST = os.getenv("BACKEND_MONGODB_HOST")
+MONGODB_PORT = os.getenv("BACKEND_MONGODB_PORT")

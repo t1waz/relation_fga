@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import dataclasses
-import inspect
+import uuid
 from typing import Dict
 from typing import Optional
 
@@ -10,6 +10,7 @@ from typing import Optional
 class User:
     email: str
     password: str
+    id: uuid.UUID = dataclasses.field(default_factory=uuid.uuid4)
     first_name: Optional[str] = None
     second_name: Optional[str] = None
 
@@ -21,4 +22,7 @@ class User:
 
     @property
     def as_dict(self) -> Dict:
-        return dataclasses.asdict(self)
+        data = dataclasses.asdict(self)
+        user_id = data.pop("id")
+
+        return {"id": str(user_id), **data}

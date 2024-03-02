@@ -29,9 +29,12 @@ services:
       dockerfile: ./compose/backend/Dockerfile
     volumes:
       - ./src/backend:/app/backend
+    command: python backend/main.py
     ports:
       - 0.0.0.0:8000:8000
-    command: python main.py
+    depends_on:
+      mongodb:
+        condition: service_healthy
     networks:
       - graph_fga
     env_file: .envs
@@ -42,6 +45,21 @@ services:
       - graph_fga
     healthcheck:
       test: ["CMD", "nc", "-z", "-v", "graph-db", "7687"]
+      interval: 5s
+      timeout: 5s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 4G
+
+  mongodb:
+    image: mongo:7.0.6
+    networks:
+      - graph_fga
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh mongodb:27017/test --quiet
       interval: 5s
       timeout: 5s
       retries: 3

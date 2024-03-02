@@ -1,16 +1,30 @@
+import asyncio
 import os
 import signal
 import socket
 import subprocess
 import time
+import uuid
 from typing import List
+
+import pytest
+from _pytest.fixtures import SubRequest
+
 from backend.core.entites import User
 from backend.repositories import user_repository
 
-import pytest
 
 TEST_PORT = 8000  # TODO
-TEST_DOMAIN = "0.0.0.0"   # TODO
+TEST_DOMAIN = "0.0.0.0"  # TODO
+
+
+@pytest.fixture(scope="session")
+def event_loop(request: SubRequest):  # TODO typing
+    loop = asyncio.get_event_loop_policy().new_event_loop()
+
+    yield loop
+
+    loop.close()
 
 
 def spawn_process(command: List[str]) -> subprocess.Popen:
@@ -40,8 +54,8 @@ def start_server(domain: str, port: int) -> subprocess.Popen:
             sock = socket.create_connection((domain, port), timeout=5)
             sock.close()
             break
-        except Exception as _: # type: ignore
-            print(_, 'eaaaa', domain, port)
+        except Exception as _:  # type: ignore
+            pass
     return process
 
 
@@ -54,7 +68,9 @@ def session():
 
 @pytest.fixture
 async def f_user_1():
-    user = User(email="example@example.com", password="pass")
-    await user_repository.save(user=user)
+    user_1 = User(email="example@example.com", password="pass", id=uuid.uuid4())
+    await user_repository.save(user=user_1)
 
-    yield user
+    yield user_1
+
+    await user_repository.delete(user=user_1)
