@@ -6,6 +6,9 @@ networks:
     name: graph_fga
 
 
+volumes:
+  frontend_node_modules: {}
+
 services:
   server_grpc:
     build:
@@ -13,8 +16,6 @@ services:
       dockerfile: ./compose/grpc/Dockerfile
     volumes:
       - ./src:/app
-    ports:
-      - 0.0.0.0:9999:9999
     command: python server_grpc/main.py
     depends_on:
       graph-db:
@@ -23,6 +24,19 @@ services:
       - graph_fga
     env_file: .envs
 
+#  frontend:
+#    build:
+#      context: .
+#      dockerfile: ./compose/frontend/Dockerfile
+#    volumes:
+#      - ./src/frontend:/app
+#      - frontend_node_modules:/app/node_modules/
+#    networks:
+#      - graph_fga
+#    env_file: .envs
+#    labels:
+#      - traefik.http.routers.frontend.rule=PathPrefix("/")
+
   backend:
     build:
       context: .
@@ -30,14 +44,16 @@ services:
     volumes:
       - ./src/backend:/app/backend
     command: python backend/main.py
-    ports:
-      - 0.0.0.0:8000:8000
     depends_on:
       mongodb:
         condition: service_healthy
     networks:
       - graph_fga
     env_file: .envs
+    labels:
+      - traefik.http.routers.backend.rule=PathPrefix("/api")
+      - traefik.http.middlewares.strip-backend.stripprefix.prefixes=/api
+      - traefik.http.routers.backend.middlewares=strip-backend
 
   graph-db:
     image: memgraph/memgraph-platform
@@ -68,3 +84,16 @@ services:
         limits:
           cpus: '2.0'
           memory: 4G
+
+  reverse-proxy:
+    image: traefik:v3.0
+    command:
+      - --api.insecure=true
+      - --providers.docker
+    ports:
+      - "80:80"
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - graph_fga

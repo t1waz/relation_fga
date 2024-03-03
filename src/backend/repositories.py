@@ -49,6 +49,13 @@ class StoreRepository:
     async def delete(self, store: Store) -> None:
         await self._store_collection.delete_one({"id": str(store.id)})
 
+    async def get_from_id(self, id: str) -> Optional[Store]:
+        user_data = await self._store_collection.find_one({"id": id})
+        if not user_data:
+            return None
+
+        return Store.from_dict(**user_data)
+
     async def get_all(self) -> List[Store]:
         stores_data = await self._store_collection.find({}).to_list(length=1000)
 

@@ -1,0 +1,32 @@
+
+.tile:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+}
+
+
+
+/*.table-content {*/
+
+/*    justify-content: space-between;*/
+/*    padding: 0 20px; !* Padding dla wewnętrznego wyrównania *!*/
+/*    text-align: center; !* Wyśrodkowanie tekstu *!*/
+
+
+/*    !*justify-content: space-between;*!*/
+/*    !*box-shadow: none;*!*/
+/*    !*pointer-events: none; !* Wyłączenie interakcji z myszką dla nagłówków *!*!*/
+/*    !*font-weight: 800;*!*/
+/*    !*font-size: 12px;*!*/
+/*    !*table-layout: fixed;*!*/
+/*    !*text-align: center; !* Wyśrodkowanie tekstu *!*!*/
+
+/*}*/
+
+/*.tile {*/
+/*    display: grid;*/
+/*    grid-template-columns: repeat(4, 1fr);*/
+/*    border: 1px solid black;*/
+/*    padding: 10px;*/
+/*    grid-gap: 10px;*/
+/*}*/

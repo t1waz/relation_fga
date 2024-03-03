@@ -1,0 +1,109 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    margin: auto;
+    /*margin-top: 200px;*/
+    background: #fff;
+    width: min(500px, 80%);
+    height: 450px;
+    padding-bottom: 30px;
+    border-radius: 50px;
+}
+
+.logo{
+    display: flex;
+    flex-direction: column;
+    height: 250px;
+    align-items: center;
+    justify-content: center;
+}
+
+.logo img {
+    max-height: 100%;
+    max-width: 100%;
+    height: auto;
+    width: auto;
+}
+
+.header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 9px;
+    width: 100%;
+    margin-top: 30px;
+}
+
+.text {
+    color: #024740;
+    font-size: 32px;
+    font-weight: 700;
+}
+
+.underline {
+    width: 50px;
+    height: 6px;
+    background: #024740;
+    border-radius: 9px;
+}
+
+.inputs {
+    margin-top: 55px;
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+    margin-bottom: 40px;
+}
+
+.input {
+    display: flex;
+    align-items: center;
+    margin: auto;
+    width: min(350px, 80%);
+    height: 50px;
+    background: #eaeaea;
+    border-radius: 6px;
+}
+
+.image {
+    margin: 0px 30px;
+}
+
+.input input {
+    height: 50px;
+    width: min(300px, 60%);
+    background: transparent;
+    border: none;
+    outline: none;
+    color: #797979;
+    font-size: 19px;
+}
+
+.submit-container {
+    display: flex;
+    gap: 30px;
+    margin: 60px auto;
+}
+
+.hover-button {
+    display: block;
+    justify-content: center;
+    align-items: center;
+    padding: 15px;
+    color: #fff;
+    background: #024740;
+    border-radius: 50px;
+    font-size: 19px;
+    font-weight: 700;
+    cursor: pointer;
+    margin: 10px auto;
+    background-color: #024740;
+    border: none;
+    cursor: pointer;
+    width: 70%;
+    transition: background-color 0.2s ease;
+}
+
+.hover-button:hover {
+    background-color: lightblue;
+}

@@ -1,0 +1,119 @@
+/* Home.css */
+.sidebar {
+    height: 100%;
+    width: 300px; /* Full sidebar width when opened */
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    background-color: #111;
+    overflow-x: hidden;
+    padding-top: 10px;
+    transition: width 0.5s;
+}
+
+/* Ukrycie tekstu w sidebarze gdy jest zwinięty */
+.sidebar.closed .sidebar-item span {
+    display: none; /* Ukryj tekst, gdy sidebar jest zwinięty */
+}
+
+/* Aby teksty były widoczne tylko gdy sidebar jest rozwinięty */
+.sidebar.open .sidebar-item span {
+    display: inline; /* Pokaż tekst, gdy sidebar jest rozwinięty */
+}
+
+/* Dostosowanie marginesu dla ikon, aby były wyśrodkowane w zwiniętym sidebarze */
+.sidebar.closed .sidebar-item {
+    justify-content: center; /* Wyśrodkowanie ikon w zwiniętym sidebarze */
+}
+
+/* Styl dla ikon */
+.sidebar-item .icon {
+    display: block; /* Ikony zawsze są wyświetlane */
+}
+
+
+.sidebar.closed {
+    width: 80px; /* Sidebar width when closed */
+}
+
+.content {
+    margin-left: 300px; /* Left margin equals the sidebar width when opened */
+    transition: margin-left 0.5s;
+}
+
+.sidebar.closed ~ .content {
+    margin-left: 80px; /* Left margin equals the sidebar width when closed */
+}
+
+
+
+.sidebar-item {
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+}
+
+.sidebar-item span {
+    margin-left: 12px;
+    display: inline-block;
+}
+
+.sidebar a {
+    padding: 8px 8px 8px 32px;
+    text-decoration: none;
+    font-size: 25px;
+    color: #818181;
+    display: block;
+    transition: color 0.3s;
+}
+
+.sidebar a:hover {
+    color: #f1f1f1;
+}
+
+/* Reszta twoich stylów ... */
+
+/* Button style if needed */
+button {
+    /* Your button styles */
+}
+
+.add-store-button {
+    display: block;
+    justify-content: center;
+    align-items: center;
+    padding: 15px;
+    color: #fff;
+    background: #027a11;
+    border-radius: 50px;
+    font-size: 19px;
+    font-weight: 700;
+    cursor: pointer;
+    margin: 10px auto;
+    background-color: rgba(0, 5, 14, 0.41);
+    border: none;
+    cursor: pointer;
+    width: 15%;
+    transition: background-color 0.2s ease;
+    border-radius: 12px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 80px; /* Keep sidebar width consistent on smaller screens */
+    }
+
+    .content {
+        margin-left: 80px; /* Adjust content margin on smaller screens */
+    }
+    .add-store-button {
+        font-size: 10px;
+    }
+}
+
+/* More responsive adjustments if needed */
+@media (max-width: 600px) {
+    /* Adjust styles for very small screens */
+}

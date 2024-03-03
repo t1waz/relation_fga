@@ -14,6 +14,7 @@ from datetime import timezone
 
 class JWTService:
     ALGORITHM = "HS256"
+    ACCESS_TOKEN_CLAIN = "Bearer"
 
     def __init__(self, user: User) -> None:
         self._user = user
@@ -46,23 +47,43 @@ class JWTService:
             raise ValueError("invalid token") from exc
 
     @classmethod
-    def setup_from_access_jwt(cls) -> JWTService:
-        return cls(user=User(email="a", password="b"))
-
-    @classmethod
-    def setup_from_refresh_jwt(cls) -> JWTService:
-        return cls(user=User(email="a", password="b"))
-
-    @classmethod
     def get_refresh_token_payload(cls, refresh_token: str):
         payload = cls._decode_token(token=refresh_token)
         iat = payload.pop("iat", None)
         if not iat:
             raise ValueError("invalid token")
 
+        if payload.get("kind", None) != constants.JWTTokenKind.REFRESH.value:
+            raise ValueError("invalid token kind")
+
         iat_datetime = datetime.fromtimestamp(iat).astimezone(tz=timezone.utc)
         ttl_delta = get_now() - iat_datetime
         if ttl_delta.seconds > settings.JWT_REFRESH_TTL:
+            raise ValueError("outdated token")
+
+        return payload
+
+    @classmethod
+    def get_access_token_payload_from_header(cls, header_token):
+        try:
+            claim, access_token = header_token.split(" ")
+        except ValueError as exc:
+            raise ValueError("invalid token format")
+
+        if claim != cls.ACCESS_TOKEN_CLAIN:
+            raise ValueError("invalid token claim")
+
+        payload = cls._decode_token(token=access_token)
+        iat = payload.pop("iat", None)
+        if not iat:
+            raise ValueError("invalid token")
+
+        if payload.get("kind", None) != constants.JWTTokenKind.ACCESS.value:
+            raise ValueError("invalid token kind")
+
+        iat_datetime = datetime.fromtimestamp(iat).astimezone(tz=timezone.utc)
+        ttl_delta = get_now() - iat_datetime
+        if ttl_delta.seconds > settings.JWT_ACCESS_TTL:
             raise ValueError("outdated token")
 
         return payload

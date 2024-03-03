@@ -16,3 +16,5 @@ RUN pip install --upgrade pip \
 COPY ./src /app
 
 RUN find /app -type d -name .pytest_cache -exec rm -rf {} +
+
+EXPOSE 9999

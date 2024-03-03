@@ -11,7 +11,7 @@ from backend.views.auth.schemas import ObtainTokenSchemaIn, RefreshTokenSchemaIn
 auth_router = SubRouter(__name__, prefix="/auth")
 
 
-@auth_router.post(f"/obtain-token")
+@auth_router.post("/obtain-token")
 async def obtain_token_view(request: Request) -> Response:
     try:
         obtain_data_in = ObtainTokenSchemaIn(**json.loads(request.body))
@@ -28,7 +28,12 @@ async def obtain_token_view(request: Request) -> Response:
     return build_response(status_code=201, data=token_data)
 
 
-@auth_router.post(f"/refresh-token")
+@auth_router.options("/obtain-token")
+async def obtain_token_options_view(request: Request) -> Response:
+    return build_response(status_code=200, data={})
+
+
+@auth_router.post("/refresh-token")
 async def refresh_token_view(request: Request) -> Response:
     try:
         refresh_data_in = RefreshTokenSchemaIn(**json.loads(request.body))
@@ -41,3 +46,8 @@ async def refresh_token_view(request: Request) -> Response:
         return build_response(status_code=400, data={"error": str(exc)})
 
     return build_response(status_code=201, data=token_data)
+
+
+@auth_router.options("/refresh-token")
+async def refresh_token_options_view(request: Request) -> Response:
+    return build_response(status_code=200, data={})

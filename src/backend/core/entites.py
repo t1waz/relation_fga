@@ -36,6 +36,7 @@ class User:
 class Store:
     name: str
     owner: User
+    auth_token: Optional[str] = None
     id: str = field(default_factory=get_entity_id)
     created_at: datetime.datetime = field(default_factory=get_now)
 
