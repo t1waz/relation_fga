@@ -10,7 +10,7 @@ from backend.repositories import user_repository, store_repository
 
 def generate_store_auth_token():
     characters = string.ascii_letters + string.digits
-    secure_string = ''.join(secrets.choice(characters) for _ in range(256))
+    secure_string = "".join(secrets.choice(characters) for _ in range(256))
 
     return secure_string
 
@@ -55,7 +55,9 @@ async def request_jwt_user(request: Request) -> User:
     except (KeyError, TypeError) as exc:
         raise ValueError("login required") from exc
 
-    access_token_data = JWTService.get_access_token_payload_from_header(header_token=request_token)
+    access_token_data = JWTService.get_access_token_payload_from_header(
+        header_token=request_token
+    )
     user_id = access_token_data.get("user_id")
     if not user_id:
         raise ValueError("invalid token data")

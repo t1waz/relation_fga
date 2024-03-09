@@ -30,7 +30,10 @@ async def make_test_auth_get(path: str, user: User) -> httpx.Response:
     async with httpx.AsyncClient() as client:
         return await client.get(
             f"http://{TEST_DOMAIN}:{TEST_PORT}/{path}",
-            headers={"content-type": "application/json", "authorization": f"Bearer {access_token}"},   # TODO
+            headers={
+                "content-type": "application/json",
+                "authorization": f"Bearer {access_token}",
+            },  # TODO
         )
 
 
@@ -42,5 +45,8 @@ async def make_test_auth_post(path: str, data: dict, user: User) -> httpx.Respon
         return await client.post(
             f"http://{TEST_DOMAIN}:{TEST_PORT}/{path}",
             json=data,
-            headers={"content-type": "application/json", "authorization": f"Bearer {access_token}"},   # TODO
+            headers={
+                "content-type": "application/json",
+                "authorization": f"Bearer {access_token}",
+            },  # TODO
         )

@@ -2,10 +2,14 @@ from __future__ import annotations
 
 import dataclasses
 import datetime
+import json
 import uuid
+from dataclasses import field
 from typing import Dict
 from typing import Optional
-from dataclasses import field
+
+from robyn.robyn import Request
+
 from backend.core.utils import get_now
 
 
@@ -26,6 +30,10 @@ class User:
         class_fields = {f.name for f in dataclasses.fields(cls)}
 
         return User(**{k: v for k, v in data.items() if k in class_fields})
+
+    @classmethod
+    def from_request(cls, request: Request) -> User:
+        return User.from_dict(**json.loads(request.identity.claims["user"]))
 
     @property
     def as_dict(self) -> Dict:

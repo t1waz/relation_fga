@@ -3,6 +3,7 @@ from typing import Optional, List
 import motor.motor_asyncio
 
 from backend.core.entites import User, Store
+from backend import settings
 
 
 client = motor.motor_asyncio.AsyncIOMotorClient("mongodb://mongodb:27017")  # TODO
@@ -10,7 +11,7 @@ client = motor.motor_asyncio.AsyncIOMotorClient("mongodb://mongodb:27017")  # TO
 
 class UserRepository:
     def __init__(self) -> None:
-        self._db = client["database"]  # TODO
+        self._db = client[settings.MONGODB_DB_NAME]
         self._user_collection = self._db["user"]
 
     async def save(self, user: User) -> None:
@@ -40,7 +41,7 @@ class UserRepository:
 
 class StoreRepository:
     def __init__(self) -> None:
-        self._db = client["database"]  # TODO
+        self._db = client[settings.MONGODB_DB_NAME]
         self._store_collection = self._db["store"]
 
     async def save(self, store: Store) -> None:
@@ -50,11 +51,13 @@ class StoreRepository:
         await self._store_collection.delete_one({"id": str(store.id)})
 
     async def get_from_id(self, id: str) -> Optional[Store]:
-        user_data = await self._store_collection.find_one({"id": id})
-        if not user_data:
+        store_data = await self._store_collection.find_one({"id": id})
+        if not store_data:
             return None
 
-        return Store.from_dict(**user_data)
+        owner_data = store_data.pop("owner")
+
+        return Store.from_dict(owner=User.from_dict(**owner_data), **store_data)
 
     async def get_all(self) -> List[Store]:
         stores_data = await self._store_collection.find({}).to_list(length=1000)

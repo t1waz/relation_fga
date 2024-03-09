@@ -4,15 +4,14 @@ import signal
 import socket
 import subprocess
 import time
-import uuid
 from typing import List
 
 import pytest
 from _pytest.fixtures import SubRequest
 
+from backend import settings
 from backend.core.entites import User, Store
-from backend.repositories import user_repository, store_repository
-
+from backend.repositories import user_repository, store_repository, client
 
 TEST_PORT = 8000  # TODO
 TEST_DOMAIN = "0.0.0.0"  # TODO
@@ -59,6 +58,16 @@ def start_server(domain: str, port: int) -> subprocess.Popen:
     return process
 
 
+@pytest.fixture(autouse=True)
+async def clean_mongo():
+    db = client[settings.MONGODB_DB_NAME]
+
+    yield
+
+    await db.drop_collection("user")
+    await db.drop_collection("store")
+
+
 @pytest.fixture(scope="session", autouse=True)
 def session():
     process = start_server(domain=TEST_DOMAIN, port=TEST_PORT)
@@ -68,12 +77,22 @@ def session():
 
 @pytest.fixture
 async def f_user_1():
-    user_1 = User(email="example@example.com", password="pass")
+    user_1 = User(email="1@example.com", password="pass")
     await user_repository.save(user=user_1)
 
     yield user_1
 
     await user_repository.delete(user=user_1)
+
+
+@pytest.fixture
+async def f_user_2():
+    user_2 = User(email="2@example.com", password="pass2")
+    await user_repository.save(user=user_2)
+
+    yield user_2
+
+    await user_repository.delete(user=user_2)
 
 
 @pytest.fixture
@@ -104,3 +123,13 @@ async def f_store_3(f_user_1):
     yield store_3
 
     await store_repository.delete(store=store_3)
+
+
+@pytest.fixture
+async def f_store_4(f_user_2):
+    store_4 = Store(name="store_3", owner=f_user_2)
+    await store_repository.save(store=store_4)
+
+    yield store_4
+
+    await store_repository.delete(store=store_4)

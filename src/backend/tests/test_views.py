@@ -1,4 +1,5 @@
 import datetime
+import uuid
 
 import pytest
 from freezegun import freeze_time
@@ -6,7 +7,12 @@ from freezegun import freeze_time
 from backend import settings
 from backend.core.jwt import JWTService
 from backend.core.utils import get_now
-from backend.tests.utils import make_test_get, make_test_post, make_test_auth_get, make_test_auth_post
+from backend.tests.utils import (
+    make_test_get,
+    make_test_post,
+    make_test_auth_get,
+    make_test_auth_post,
+)
 from backend.repositories import store_repository
 
 
@@ -33,7 +39,9 @@ class TestObtainTokenView:
         assert response.status_code == 404
 
     async def test_obtain_token_data_missing_password(self, f_user_1):
-        response = await make_test_post(path=self.ENDPOINT, data={"email": f_user_1.email})
+        response = await make_test_post(
+            path=self.ENDPOINT, data={"email": f_user_1.email}
+        )
 
         assert response.status_code == 400
         assert "request data" in response.text
@@ -54,7 +62,8 @@ class TestObtainTokenView:
 
     async def test_obtain_token_data_email_not_a_email(self, f_user_1):
         response = await make_test_post(
-            path=self.ENDPOINT, data={"email": "not_a_email", "password": f_user_1.password}
+            path=self.ENDPOINT,
+            data={"email": "not_a_email", "password": f_user_1.password},
         )
 
         assert response.status_code == 400
@@ -79,7 +88,8 @@ class TestObtainTokenView:
 
     async def test_obtain_token_data_valid_request(self, f_user_1):
         response = await make_test_post(
-            path=self.ENDPOINT, data={"email": f_user_1.email, "password": f_user_1.password}
+            path=self.ENDPOINT,
+            data={"email": f_user_1.email, "password": f_user_1.password},
         )
 
         assert response.status_code == 201
@@ -127,7 +137,9 @@ class TestRefreshTokenView:
             "SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
         )
 
-        response = await make_test_post(path=self.ENDPOINT, data={"refresh": invalid_token})
+        response = await make_test_post(
+            path=self.ENDPOINT, data={"refresh": invalid_token}
+        )
 
         assert response.status_code == 400
 
@@ -137,7 +149,9 @@ class TestRefreshTokenView:
         ):
             refresh_jwt = JWTService(user=f_user_1).generate_refresh_jwt()
 
-        response = await make_test_post(path=self.ENDPOINT, data={"refresh": refresh_jwt})
+        response = await make_test_post(
+            path=self.ENDPOINT, data={"refresh": refresh_jwt}
+        )
 
         assert response.status_code == 400
         assert "outdated" in response.text
@@ -145,7 +159,9 @@ class TestRefreshTokenView:
     async def test_refresh_token_valid_refresh(self, f_user_1):
         refresh_jwt = JWTService(user=f_user_1).generate_refresh_jwt()
 
-        response = await make_test_post(path=self.ENDPOINT, data={"refresh": refresh_jwt})
+        response = await make_test_post(
+            path=self.ENDPOINT, data={"refresh": refresh_jwt}
+        )
 
         assert response.status_code == 201
 
@@ -173,7 +189,55 @@ class TestGetStoresView:
         data = response.json()
 
         assert {d["id"] for d in data} == {f_store_1.id, f_store_2.id, f_store_3.id}
-        assert {d["name"] for d in data} == {f_store_1.name, f_store_2.name, f_store_3.name}
+        assert {d["name"] for d in data} == {
+            f_store_1.name,
+            f_store_2.name,
+            f_store_3.name,
+        }
+
+
+class TestGetStoreView:
+    ENDPOINT = "/stores"
+
+    async def test_get_store_not_logged(self, f_store_1):
+        response = await make_test_get(f"{self.ENDPOINT}/{str(f_store_1.id)}")
+
+        assert response.status_code == 403
+
+    async def test_get_stores_logged_not_existing_store(self, f_user_1):
+        response = await make_test_auth_get(
+            f"{self.ENDPOINT}/{str(uuid.uuid4())}", user=f_user_1
+        )
+
+        assert response.status_code == 404
+
+    @pytest.mark.parametrize("invalid_store_id", [123, 3.14, False, "aaa"])
+    async def test_get_stores_logged_invalid_store_id(self, invalid_store_id, f_user_1):
+        response = await make_test_auth_get(
+            f"{self.ENDPOINT}/{invalid_store_id}", user=f_user_1
+        )
+
+        assert response.status_code == 404
+
+    async def test_get_stores_logged_not_user_store(self, f_user_1, f_store_4):
+        response = await make_test_auth_get(
+            f"{self.ENDPOINT}/{str(f_store_4.id)}", user=f_user_1
+        )
+
+        assert response.status_code == 404
+
+    async def test_get_stores_logged_user_store(self, f_user_1, f_store_1):
+        response = await make_test_auth_get(
+            f"{self.ENDPOINT}/{str(f_store_1.id)}", user=f_user_1
+        )
+
+        assert response.status_code == 200
+
+        data = response.json()
+
+        assert data["id"] == str(f_store_1.id)
+        assert data["name"] == str(f_store_1.name)
+        assert data["auth_token"] == f_store_1.auth_token
 
 
 class TestCreateStoreView:
@@ -191,20 +255,26 @@ class TestCreateStoreView:
         assert "name" in response.text
 
     async def test_create_store_logged_missing_name(self, f_user_1):
-        response = await make_test_auth_post(self.ENDPOINT, data={"a": "b"}, user=f_user_1)
+        response = await make_test_auth_post(
+            self.ENDPOINT, data={"a": "b"}, user=f_user_1
+        )
 
         assert response.status_code == 400
         assert "name" in response.text
 
     @pytest.mark.parametrize("invalid_store_name", [123, 3.14, False, ""])
     async def test_create_store_logged_invalid_name(self, invalid_store_name, f_user_1):
-        response = await make_test_auth_post(self.ENDPOINT, data={"name": invalid_store_name}, user=f_user_1)
+        response = await make_test_auth_post(
+            self.ENDPOINT, data={"name": invalid_store_name}, user=f_user_1
+        )
 
         assert response.status_code == 400
         assert "name" in response.text
 
     async def test_create_store_logged_too_short_name(self, f_user_1):
-        response = await make_test_auth_post(self.ENDPOINT, data={"name": "1234"}, user=f_user_1)
+        response = await make_test_auth_post(
+            self.ENDPOINT, data={"name": "1234"}, user=f_user_1
+        )
 
         assert response.status_code == 400
         assert "name" in response.text
@@ -212,7 +282,9 @@ class TestCreateStoreView:
     async def test_create_store_logged_valid_data(self, f_user_1):
         desired_store_name = "foo-bar-test"
 
-        response = await make_test_auth_post(self.ENDPOINT, data={"name": desired_store_name}, user=f_user_1)
+        response = await make_test_auth_post(
+            self.ENDPOINT, data={"name": desired_store_name}, user=f_user_1
+        )
 
         assert response.status_code == 201
 

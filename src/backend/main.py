@@ -3,6 +3,7 @@ from robyn import Robyn, ALLOW_CORS
 from backend.repositories import user_repository, store_repository
 from backend.views.auth.views import auth_router
 from backend.views.stores.views import stores_router
+from backend.views.users.views import users_router
 
 
 async def create_indexes() -> None:
@@ -11,7 +12,12 @@ async def create_indexes() -> None:
 
     from backend.core.entites import User, Store
 
-    root_user = User(email="root@example.com", password="root")
+    root_user = User(
+        email="root@example.com",
+        password="root",
+        first_name="Admin",
+        second_name="Root",
+    )
     store_1 = Store(owner=root_user, name="store foo 1")
     store_2 = Store(owner=root_user, name="store foo 2")
     store_3 = Store(owner=root_user, name="store foo 3")
@@ -22,12 +28,14 @@ async def create_indexes() -> None:
     #     await store_repository.save(store=store_3)
     # except:
     #     pass
+    #
 
 
 app = Robyn(__file__)
 ALLOW_CORS(app, origins=["*"])
 
 app.include_router(auth_router)
+app.include_router(users_router)
 app.include_router(stores_router)
 
 app.startup_handler(create_indexes)
