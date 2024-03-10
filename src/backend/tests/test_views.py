@@ -240,6 +240,27 @@ class TestGetStoreView:
         assert data["auth_token"] == f_store_1.auth_token
 
 
+class TestMeView:
+    ENDPOINT = "/users/me"
+
+    async def test_get_me_view_not_logged(self):
+        response = await make_test_get(self.ENDPOINT)
+
+        assert response.status_code == 403
+
+    async def test_get_me_view_logged(self, f_user_1):
+        response = await make_test_auth_get(self.ENDPOINT, user=f_user_1)
+
+        assert response.status_code == 200
+
+        data = response.json()
+
+        assert data["id"] == str(f_user_1.id)
+        assert data["email"] == f_user_1.email
+        assert data["first_name"] == f_user_1.first_name
+        assert data["second_name"] == f_user_1.second_name
+
+
 class TestCreateStoreView:
     ENDPOINT = "/stores"
 

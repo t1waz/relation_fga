@@ -77,7 +77,12 @@ def session():
 
 @pytest.fixture
 async def f_user_1():
-    user_1 = User(email="1@example.com", password="pass")
+    user_1 = User(
+        password="pass",
+        first_name="first_1",
+        second_name="second_1",
+        email="1@example.com",
+    )
     await user_repository.save(user=user_1)
 
     yield user_1
