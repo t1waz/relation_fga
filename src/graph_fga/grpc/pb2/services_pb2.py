@@ -17,7 +17,7 @@ import messages_pb2 as messages__pb2
 
 
 DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(
-    b'\n\x0eservices.proto\x1a\x0emessages.proto2\x83\x03\n\x0fGraphFgaService\x12\x35\n\nstore_read\x12\x11.StoreReadRequest\x1a\x12.StoreReadResponse"\x00\x12\x38\n\x0bstore_write\x12\x12.StoreWriteRequest\x1a\x13.StoreWriteResponse"\x00\x12\x38\n\x0bstore_check\x12\x12.StoreCheckRequest\x1a\x13.StoreCheckResponse"\x00\x12;\n\x0cstore_create\x12\x13.StoreCreateRequest\x1a\x14.StoreCreateResponse"\x00\x12;\n\x0cstore_update\x12\x13.StoreUpdateRequest\x1a\x14.StoreUpdateResponse"\x00\x12K\n\x12store_list_objects\x12\x18.StoreListObjectsRequest\x1a\x19.StoreListObjectsResponse"\x00\x62\x06proto3'
+    b'\n\x0eservices.proto\x1a\x0emessages.proto2\xba\x03\n\x0fGraphFgaService\x12\x35\n\nstore_view\x12\x11.StoreViewRequest\x1a\x12.StoreViewResponse"\x00\x12;\n\x0cstore_create\x12\x13.StoreCreateRequest\x1a\x14.StoreCreateResponse"\x00\x12;\n\x0cstore_update\x12\x13.StoreUpdateRequest\x1a\x14.StoreUpdateResponse"\x00\x12\x35\n\nstore_read\x12\x11.StoreReadRequest\x1a\x12.StoreReadResponse"\x00\x12\x38\n\x0bstore_write\x12\x12.StoreWriteRequest\x1a\x13.StoreWriteResponse"\x00\x12\x38\n\x0bstore_check\x12\x12.StoreCheckRequest\x1a\x13.StoreCheckResponse"\x00\x12K\n\x12store_list_objects\x12\x18.StoreListObjectsRequest\x1a\x19.StoreListObjectsResponse"\x00\x62\x06proto3'
 )
 
 _globals = globals()
@@ -26,5 +26,5 @@ _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, "services_pb2", _globals)
 if _descriptor._USE_C_DESCRIPTORS == False:
     DESCRIPTOR._options = None
     _globals["_GRAPHFGASERVICE"]._serialized_start = 35
-    _globals["_GRAPHFGASERVICE"]._serialized_end = 422
+    _globals["_GRAPHFGASERVICE"]._serialized_end = 477
 # @@protoc_insertion_point(module_scope)

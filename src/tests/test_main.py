@@ -625,6 +625,28 @@ class TestMainListObjects:
         assert set(response.objects) == set(desired_objects_ids)
 
 
+class TestMainStoreView:
+    def test_graph_fga_server_view_store_not_existing_id(
+        self, grpc_stub, f_auth_model_1
+    ):
+        with pytest.raises(grpc._channel._InactiveRpcError) as exc_info:
+            grpc_stub.store_view(
+                request=messages_pb2.StoreViewRequest(store_id="foo-bar")
+            )
+        exc_data = exc_info.value.details()
+
+        assert exc_info.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert "invalid store_id" in exc_data
+
+    def test_graph_fga_server_view_store_not_id(self, grpc_stub, f_auth_model_1):
+        store_view_response = grpc_stub.store_view(
+            request=messages_pb2.StoreViewRequest(store_id=f_auth_model_1.id)
+        )
+
+        assert store_view_response.store_id == f_auth_model_1.id
+        assert store_view_response.model == f_auth_model_1.config
+
+
 class TestMainStoreCreate:
     def test_graph_fga_server_create_store_invalid_model(self, grpc_stub):
         invalid_model = "sdfd fgoo"

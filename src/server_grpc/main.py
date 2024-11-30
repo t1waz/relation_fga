@@ -29,6 +29,33 @@ def get_store_logic_from_request(request: Message) -> StoreLogic:
 
 class GraphFgaServicer(services_pb2_grpc.GraphFgaServiceServicer):
     @handle_exception
+    def store_view(
+        self, request: messages_pb2.StoreViewRequest, context: grpc.ServicerContext
+    ) -> messages_pb2.StoreViewResponse:
+        store_logic = get_store_logic_from_request(request=request)
+
+        return messages_pb2.StoreViewResponse(
+            store_id=store_logic.auth_model.id, model=store_logic.auth_model.config
+        )
+
+    @handle_exception
+    def store_create(
+        self, request: messages_pb2.StoreCreateRequest, context: grpc.ServicerContext
+    ) -> messages_pb2.StoreCreateResponse:
+        try:
+            auth_model = AuthModel(config=request.model)
+        except Exception as _:
+            raise InvalidRequestException("invalid model")
+
+        if not auth_model.is_valid:
+            raise InvalidRequestException("invalid model")
+
+        model_config_repository.save(auth_model=auth_model)
+        model_config_repository.create_indexes(auth_model=auth_model)
+
+        return messages_pb2.StoreCreateResponse(status="ok", store_id=auth_model.id)
+
+    @handle_exception
     def store_update(
         self, request: messages_pb2.StoreUpdateRequest, context: grpc.ServicerContext
     ) -> messages_pb2.StoreUpdateResponse:
@@ -52,23 +79,6 @@ class GraphFgaServicer(services_pb2_grpc.GraphFgaServiceServicer):
         return messages_pb2.StoreUpdateResponse(
             status="updated", store_id=auth_model.id
         )
-
-    @handle_exception
-    def store_create(
-        self, request: messages_pb2.StoreCreateRequest, context: grpc.ServicerContext
-    ) -> messages_pb2.StoreCreateResponse:
-        try:
-            auth_model = AuthModel(config=request.model)
-        except Exception as _:
-            raise InvalidRequestException("invalid model")
-
-        if not auth_model.is_valid:
-            raise InvalidRequestException("invalid model")
-
-        model_config_repository.save(auth_model=auth_model)
-        model_config_repository.create_indexes(auth_model=auth_model)
-
-        return messages_pb2.StoreCreateResponse(status="ok", store_id=auth_model.id)
 
     @handle_exception
     def store_write(
