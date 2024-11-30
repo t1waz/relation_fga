@@ -12,7 +12,7 @@ from graph_fga.logger import logger
 from server_grpc.exceptions import InvalidRequestException
 from server_grpc.exceptions import handle_exception
 from server_grpc.repositories import model_config_repository
-from server_grpc.services import StoreLogic
+from server_grpc.services import StoreLogic, get_graph_session
 from server_grpc.settings import settings
 
 
@@ -28,6 +28,31 @@ def get_store_logic_from_request(request: Message) -> StoreLogic:
 
 
 class GraphFgaServicer(services_pb2_grpc.GraphFgaServiceServicer):
+    @handle_exception
+    def store_update(
+        self, request: messages_pb2.StoreUpdateRequest, context: grpc.ServicerContext
+    ) -> messages_pb2.StoreUpdateResponse:
+        model_config_repository.get_model_config(store_id=request.store_id)
+
+        try:
+            auth_model = AuthModel(config=request.model, id=request.store_id)
+        except Exception as _:
+            raise InvalidRequestException("invalid model")
+
+        if not auth_model.is_valid:
+            raise InvalidRequestException("invalid model")
+
+        session = get_graph_session()
+        with session.begin_transaction() as tx:
+            model_config_repository.delete(auth_model_id=request.store_id, tx=tx)
+            model_config_repository.save(auth_model=auth_model, tx=tx)
+
+        model_config_repository.create_indexes(auth_model=auth_model)
+
+        return messages_pb2.StoreUpdateResponse(
+            status="updated", store_id=auth_model.id
+        )
+
     @handle_exception
     def store_create(
         self, request: messages_pb2.StoreCreateRequest, context: grpc.ServicerContext

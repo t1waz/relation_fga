@@ -147,6 +147,15 @@ class AuthModelRepository:
 
         return auth_model.id
 
+    def delete(self, auth_model_id: str, tx: Optional[Transaction] = None) -> None:
+        delete_cmd = f'MATCH (m:store {{id: "{auth_model_id}"}}) DELETE m'
+
+        if tx:
+            tx.run(delete_cmd)
+        else:
+            with self._driver.session(database="memgraph") as session:
+                session.run(delete_cmd, database_="memgraph")
+
     def get_model_config(self, store_id: str) -> Optional[AuthModel]:
         with self._driver.session(database="memgraph") as session:
             result = session.run(

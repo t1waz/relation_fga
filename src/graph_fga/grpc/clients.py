@@ -14,11 +14,18 @@ class GraphFgaGrpcClient:
         )
 
     def store_create(self, model_str: str) -> str:
-        response = self._stub.store_create(
+        store_create_response = self._stub.store_create(
             messages_pb2.StoreCreateRequest(model=model_str)
         )
 
-        return response.store_id
+        return store_create_response.store_id
+
+    def store_update(self, store_id: str, model_str: str) -> str:
+        store_update_response = self._stub.store_update(
+            messages_pb2.StoreUpdateRequest(store_id=store_id, model=model_str)
+        )
+
+        return store_update_response.store_id
 
     def store_read(
         self,

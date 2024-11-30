@@ -669,6 +669,104 @@ class TestMainStoreCreate:
         assert auth_model.config == desired_model
 
 
+class TestMainStoreUpdate:
+    def test_graph_fga_server_update_not_existing_store(
+        self, grpc_stub, f_auth_model_1
+    ):
+        desired_model = """
+        type user
+    
+        """
+
+        with pytest.raises(grpc._channel._InactiveRpcError) as exc_info:
+            grpc_stub.store_update(
+                request=messages_pb2.StoreUpdateRequest(
+                    store_id=str(uuid.uuid4()),
+                    model=desired_model,
+                )
+            )
+        exc_data = exc_info.value.details()
+
+        assert exc_info.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert "model" in exc_data
+
+    def test_graph_fga_server_update_invalid_model(self, grpc_stub, f_auth_model_1):
+        invalid_model = "sdfd fgoo"
+
+        with pytest.raises(grpc._channel._InactiveRpcError) as exc_info:
+            grpc_stub.store_update(
+                request=messages_pb2.StoreUpdateRequest(
+                    store_id=f_auth_model_1.id,
+                    model=invalid_model,
+                )
+            )
+        exc_data = exc_info.value.details()
+
+        assert exc_info.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert "model" in exc_data
+
+    def test_graph_fga_server_update_existing_store(self, grpc_stub, f_auth_model_1):
+        desired_model = """
+        type user
+
+        type unit
+          relations
+            define comrade: [user]
+            define root: [unit]
+
+        """
+
+        response = grpc_stub.store_update(
+            request=messages_pb2.StoreUpdateRequest(
+                store_id=f_auth_model_1.id,
+                model=desired_model,
+            )
+        )
+
+        assert response.status == "updated"
+        assert response.store_id == f_auth_model_1.id
+
+    def test_graph_fga_server_after_update_permission_changed(
+        self, grpc_stub, f_auth_model_1, relation_tuple_repository
+    ):
+        desired_model = """
+        type user
+
+        type unit
+          relations
+            define comrade: [user]
+            define root: [unit]
+
+        """
+
+        response = grpc_stub.store_update(
+            request=messages_pb2.StoreUpdateRequest(
+                store_id=f_auth_model_1.id,
+                model=desired_model,
+            )
+        )
+
+        desired_user = "user:1"
+        desired_case = "issue:1"
+        relation_tuple_repository.save(
+            store_id=f_auth_model_1.id,
+            relation_tuple=RelationTuple(
+                source=desired_user, target=desired_case, relation="manager"
+            ),
+        )
+
+        response = grpc_stub.store_check(
+            request=messages_pb2.StoreCheckRequest(
+                store_id=f_auth_model_1.id,
+                user=desired_user,
+                object=desired_case,
+                permission="can_edit",
+            )
+        )
+
+        assert response.allowed is False
+
+
 class TestMainCheck:
     def test_graph_fga_server_check_valid_data_not_existing_direct_access(
         self, grpc_stub, f_auth_model_1, relation_tuple_repository
