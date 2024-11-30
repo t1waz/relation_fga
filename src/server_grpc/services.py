@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from typing import List, Optional
 
+from neo4j import Session, Transaction
+
 from graph_fga.engine import PermissionEngine
 from graph_fga.entities import RelationTuple, CheckRequest, ListObjectsRequest
 from graph_fga.exceptions import InvalidRelationTupleException
@@ -11,7 +13,6 @@ from server_grpc.repositories import (
     fga_driver,
     relation_tuple_repository,
 )
-from neo4j import Session, Transaction
 
 
 def get_permission_engine(store_id: str) -> PermissionEngine:
