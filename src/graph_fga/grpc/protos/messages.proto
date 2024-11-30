@@ -39,6 +39,16 @@ message StoreCreateResponse {
     string store_id = 2;
 }
 
+message StoreUpdateRequest {
+    string store_id = 1;
+    string model = 2;
+}
+
+message StoreUpdateResponse {
+    string status = 1;
+    string store_id = 2;
+}
+
 message StoreListObjectsRequest {
     string store_id = 1;
     string user = 2;

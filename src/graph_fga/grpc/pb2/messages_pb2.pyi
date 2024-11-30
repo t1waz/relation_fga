@@ -92,6 +92,26 @@ class StoreCreateResponse(_message.Message):
         self, status: _Optional[str] = ..., store_id: _Optional[str] = ...
     ) -> None: ...
 
+class StoreUpdateRequest(_message.Message):
+    __slots__ = ("store_id", "model")
+    STORE_ID_FIELD_NUMBER: _ClassVar[int]
+    MODEL_FIELD_NUMBER: _ClassVar[int]
+    store_id: str
+    model: str
+    def __init__(
+        self, store_id: _Optional[str] = ..., model: _Optional[str] = ...
+    ) -> None: ...
+
+class StoreUpdateResponse(_message.Message):
+    __slots__ = ("status", "store_id")
+    STATUS_FIELD_NUMBER: _ClassVar[int]
+    STORE_ID_FIELD_NUMBER: _ClassVar[int]
+    status: str
+    store_id: str
+    def __init__(
+        self, status: _Optional[str] = ..., store_id: _Optional[str] = ...
+    ) -> None: ...
+
 class StoreListObjectsRequest(_message.Message):
     __slots__ = ("store_id", "user", "permission", "type", "contextual_tuples")
     STORE_ID_FIELD_NUMBER: _ClassVar[int]
