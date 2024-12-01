@@ -27,6 +27,11 @@ class OverseerEndpoint(WebSocketEndpoint):
             store_id=store_id, permission_model=config
         )
         await websocket.accept()
+        await websocket.send_json(
+            {
+                "permission_model": self._overseer_assistant.permission_model,
+            }
+        )
 
     async def on_receive(self, websocket: WebSocket, data: typing.Any) -> None:
         question = data["question"]
