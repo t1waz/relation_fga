@@ -23,6 +23,22 @@ services:
       - graph_fga
     env_file: .envs
 
+  overseer:
+    build:
+      context: .
+      dockerfile: ./compose/overseer/Dockerfile
+    volumes:
+      - ./src:/app
+    ports:
+      - 0.0.0.0:8000:8000
+    command: uvicorn overseer.main:app --host 0.0.0.0 --port 8000
+    depends_on:
+      graph-db:
+        condition: service_healthy
+    networks:
+      - graph_fga
+    env_file: .envs
+
   graph-db:
     image: memgraph/memgraph-platform
     networks:

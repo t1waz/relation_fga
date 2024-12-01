@@ -212,7 +212,7 @@ class AuthModel:
 
     @property
     def is_valid(self) -> bool:
-        return len(self._relations) > 0 and len(self._model_types) > 0
+        return len(self._relations) >= 0 and len(self._model_types) > 0
 
     @property
     def type_names(self) -> List[str]:

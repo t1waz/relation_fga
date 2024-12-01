@@ -59,7 +59,9 @@ class GraphFgaServicer(services_pb2_grpc.GraphFgaServiceServicer):
     def store_update(
         self, request: messages_pb2.StoreUpdateRequest, context: grpc.ServicerContext
     ) -> messages_pb2.StoreUpdateResponse:
-        model_config_repository.get_model_config(store_id=request.store_id)
+        auth_model = model_config_repository.get_model_config(store_id=request.store_id)
+        if not auth_model:
+            raise InvalidRequestException("invalid model")
 
         try:
             auth_model = AuthModel(config=request.model, id=request.store_id)
