@@ -25,7 +25,18 @@ class GraphFgaGrpcClient:
             messages_pb2.StoreUpdateRequest(store_id=store_id, model=model_str)
         )
 
+        assert store_update_response.store_id == store_id
+
         return store_update_response.store_id
+
+    def store_view(self, store_id: str) -> str:
+        store_view_response = self._stub.store_view(
+            messages_pb2.StoreViewRequest(store_id=store_id)
+        )
+
+        assert store_view_response.store_id == store_id
+
+        return store_view_response.model
 
     def store_read(
         self,
