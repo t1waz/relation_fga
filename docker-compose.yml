@@ -43,6 +43,8 @@ services:
     image: memgraph/memgraph-platform
     networks:
       - graph_fga
+    ports:
+      - 0.0.0.0:3000:3000
     healthcheck:
       test: ["CMD", "nc", "-z", "-v", "graph-db", "7687"]
       interval: 5s

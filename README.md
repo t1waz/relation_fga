@@ -27,6 +27,12 @@ I am very open to criticism, I probably made mistakes
 
 DEV GUIDE
 ---------
+RUN APP:
+
+    $ docker compose up
+    $ cd src/overseer-chat && npm run dev
+
+
 PROTOS:
 
 run commands from graph_fga/grpc folder:
