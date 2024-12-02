@@ -58,6 +58,14 @@ message StoreViewResponse {
     string model = 2 ;
 }
 
+message StoreListRequest {
+
+}
+
+message StoreListResponse {
+    repeated string store_ids = 1;
+}
+
 message StoreListObjectsRequest {
     string store_id = 1;
     string user = 2;

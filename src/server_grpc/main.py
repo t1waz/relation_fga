@@ -29,6 +29,14 @@ def get_store_logic_from_request(request: Message) -> StoreLogic:
 
 class GraphFgaServicer(services_pb2_grpc.GraphFgaServiceServicer):
     @handle_exception
+    def store_list(
+        self, request: messages_pb2.StoreListRequest, context: grpc.ServicerContext
+    ) -> messages_pb2.StoreListResponse:
+        return messages_pb2.StoreListResponse(
+            store_ids=model_config_repository.get_store_ids()
+        )
+
+    @handle_exception
     def store_view(
         self, request: messages_pb2.StoreViewRequest, context: grpc.ServicerContext
     ) -> messages_pb2.StoreViewResponse:

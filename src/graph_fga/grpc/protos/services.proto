@@ -7,6 +7,7 @@ service GraphFgaService {
     rpc store_view(StoreViewRequest) returns (StoreViewResponse) {}
     rpc store_create(StoreCreateRequest) returns (StoreCreateResponse) {}
     rpc store_update(StoreUpdateRequest) returns (StoreUpdateResponse) {}
+    rpc store_list(StoreListRequest) returns (StoreListResponse) {}
 
     rpc store_read(StoreReadRequest) returns (StoreReadResponse) {}
     rpc store_write(StoreWriteRequest) returns (StoreWriteResponse) {}

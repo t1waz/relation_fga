@@ -168,3 +168,8 @@ class AuthModelRepository:
                 return None
 
             return self._blob_to_model(blob=blob)
+
+    def get_store_ids(self) -> List[str]:
+        with self._driver.session(database="memgraph") as session:
+            result = session.run("MATCH (m:store) RETURN m.id AS store_id")
+            return [record["store_id"] for record in result]

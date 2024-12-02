@@ -24,7 +24,7 @@ def grpc_stub(grpc_channel):
 
 @pytest.fixture(scope="session")
 def graph_driver():
-    yield GraphDatabase.driver(uri="bolt://graph-db:7687", auth=("", ""))
+    yield GraphDatabase.driver(uri="bolt://graph_db:7687", auth=("", ""))
 
 
 @pytest.fixture(autouse=True)

@@ -1,4 +1,4 @@
-from typing import List, Dict, Optional
+from typing import List, Dict
 
 from anthropic import AsyncAnthropic
 from anthropic.types import Message
@@ -9,6 +9,7 @@ from overseer_backend.domain.tools.check_store_relation import CheckStoreRelatio
 from overseer_backend.domain.tools.describe_store import DescribeStoreTool
 from overseer_backend.domain.tools.update_store import UpdateStoreTool
 from overseer_backend.domain.tools.write_store_relation import WriteStoreRelationTool
+from overseer_backend.logger import logger
 
 
 class OverSeerAssistant:
@@ -73,6 +74,7 @@ class OverSeerAssistant:
 
     def _call_tool(self, tool_block) -> Dict:
         tool = next(filter(lambda x: x.NAME == tool_block.name, self._tools))
+        logger.info(f"calling tool: {tool.NAME}")
         tool_result = tool.call(**tool_block.input)
 
         if any((isinstance(tool, c) for c in (UpdateStoreTool,))):
