@@ -3,12 +3,12 @@ from typing import List, Dict, Optional
 from anthropic import AsyncAnthropic
 from anthropic.types import Message
 
-from overseer import settings
-from overseer.domain.models import AIMessage
-from overseer.domain.tools.check_store_relation import CheckStoreRelationTool
-from overseer.domain.tools.describe_store import DescribeStoreTool
-from overseer.domain.tools.update_store import UpdateStoreTool
-from overseer.domain.tools.write_store_relation import WriteStoreRelationTool
+from overseer_backend import settings
+from overseer_backend.domain.models import AIMessage
+from overseer_backend.domain.tools.check_store_relation import CheckStoreRelationTool
+from overseer_backend.domain.tools.describe_store import DescribeStoreTool
+from overseer_backend.domain.tools.update_store import UpdateStoreTool
+from overseer_backend.domain.tools.write_store_relation import WriteStoreRelationTool
 
 
 class OverSeerAssistant:

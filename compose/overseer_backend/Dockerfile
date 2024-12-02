@@ -8,7 +8,7 @@ RUN apk update \
 
 WORKDIR /app
 
-COPY ./compose/overseer/requirements.txt /app
+COPY ./compose/overseer_backend/requirements.txt /app
 
 RUN pip install --upgrade pip \
     && pip install -r requirements.txt

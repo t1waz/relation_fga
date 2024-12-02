@@ -1,12 +1,15 @@
 import typing
+from typing import Optional
 
+from overseer_backend.clients import graph_fga_client
+from overseer_backend.domain.ai import OverSeerAssistant
 from starlette.applications import Starlette
 from starlette.endpoints import WebSocketEndpoint
-from starlette.routing import WebSocketRoute
+from starlette.requests import Request
+from starlette.responses import Response
+from starlette.routing import WebSocketRoute, Route
 from starlette.websockets import WebSocket
-from overseer.domain.ai import OverSeerAssistant
-from typing import Optional
-from overseer.clients import graph_fga_client
+
 
 config = """
 type user
@@ -45,6 +48,13 @@ class OverseerEndpoint(WebSocketEndpoint):
         )
 
 
-routes = [WebSocketRoute("/overseer", OverseerEndpoint)]
+async def healthcheck(requet: Request, *args, **kwargs) -> Response:
+    return Response(status_code=200)
+
+
+routes = [
+    Route("/healthcheck", healthcheck),
+    WebSocketRoute("/overseer", OverseerEndpoint),
+]
 
 app = Starlette(routes=routes)

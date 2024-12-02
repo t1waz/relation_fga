@@ -1,7 +1,7 @@
 from typing import Dict
 
-from overseer.clients import graph_fga_client
-from overseer.domain.tools import Tool
+from overseer_backend.clients import graph_fga_client
+from overseer_backend.domain.tools import Tool
 
 
 class DescribeStoreTool(Tool):

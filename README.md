@@ -30,7 +30,6 @@ DEV GUIDE
 RUN APP:
 
     $ docker compose up
-    $ cd src/overseer-chat && npm run dev
 
 
 PROTOS:

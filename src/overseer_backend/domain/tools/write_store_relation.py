@@ -1,8 +1,8 @@
 from typing import Dict, List
 
 from graph_fga.entities import RelationTuple
-from overseer.clients import graph_fga_client
-from overseer.domain.tools import Tool
+from overseer_backend.clients import graph_fga_client
+from overseer_backend.domain.tools import Tool
 
 
 class WriteStoreRelationTool(Tool):
