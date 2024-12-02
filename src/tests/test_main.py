@@ -625,6 +625,24 @@ class TestMainListObjects:
         assert set(response.objects) == set(desired_objects_ids)
 
 
+class TestMainStoreListView:
+    def test_graph_fga_server_view_all_store_ids_no_stores(self, grpc_stub):
+        response = grpc_stub.store_list(
+            request=messages_pb2.StoreListRequest(),
+        )
+
+        assert response.store_ids == []
+
+    def test_graph_fga_server_view_all_store_ids(
+        self, grpc_stub, f_auth_model_1, f_auth_model_2
+    ):
+        response = grpc_stub.store_list(
+            request=messages_pb2.StoreListRequest(),
+        )
+
+        assert set(response.store_ids) == {f_auth_model_1.id, f_auth_model_2.id}
+
+
 class TestMainStoreView:
     def test_graph_fga_server_view_store_not_existing_id(
         self, grpc_stub, f_auth_model_1

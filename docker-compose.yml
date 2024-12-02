@@ -5,6 +5,11 @@ networks:
   graph_fga:
     name: graph_fga
 
+volumes:
+  mg_lib:
+  mg_log:
+  mg_etc:
+
 
 services:
   server_grpc:
@@ -44,6 +49,10 @@ services:
     image: memgraph/memgraph-platform
     networks:
       - graph_fga
+    volumes:
+      - mg_lib:/var/lib/memgraph
+      - mg_log:/var/log/memgraph
+      - mg_etc:/etc/memgraph 
     healthcheck:
       test: ["CMD", "nc", "-z", "-v", "graph_db", "7687"]
       interval: 5s

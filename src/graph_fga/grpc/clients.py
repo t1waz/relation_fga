@@ -13,6 +13,11 @@ class GraphFgaGrpcClient:
             channel=grpc.insecure_channel(f"{host}:{port}")
         )
 
+    def store_list(self) -> List[str]:
+        store_list_response = self._stub.store_list(messages_pb2.StoreListRequest())
+
+        return store_list_response.store_ids
+
     def store_create(self, model_str: str) -> str:
         store_create_response = self._stub.store_create(
             messages_pb2.StoreCreateRequest(model=model_str)

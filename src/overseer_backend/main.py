@@ -1,8 +1,6 @@
 import typing
 from typing import Optional
 
-from overseer_backend.clients import graph_fga_client
-from overseer_backend.domain.ai import OverSeerAssistant
 from starlette.applications import Starlette
 from starlette.endpoints import WebSocketEndpoint
 from starlette.requests import Request
@@ -10,8 +8,12 @@ from starlette.responses import Response
 from starlette.routing import WebSocketRoute, Route
 from starlette.websockets import WebSocket
 
+from overseer_backend.clients import graph_fga_client
+from overseer_backend.domain.ai import OverSeerAssistant
+from overseer_backend.logger import logger
 
-config = """
+
+DEFAULT_STORE_PERMISSION_MODEL = """
 type user
 
 """
@@ -25,9 +27,20 @@ class OverseerEndpoint(WebSocketEndpoint):
         super().__init__(*args, **kwargs)
 
     async def on_connect(self, websocket: WebSocket) -> None:
-        store_id = graph_fga_client.store_create(model_str=config)
+        existing_store_ids = graph_fga_client.store_list()
+        if existing_store_ids:
+            store_id = existing_store_ids[0]
+            logger.info(f"store exist, connecting to: {store_id}")
+        else:
+            store_id = graph_fga_client.store_create(
+                model_str=DEFAULT_STORE_PERMISSION_MODEL
+            )
+            logger.info("no existing stores, creating new one")
+
+        permission_model = graph_fga_client.store_view(store_id=store_id)
+
         self._overseer_assistant = OverSeerAssistant(
-            store_id=store_id, permission_model=config
+            store_id=store_id, permission_model=permission_model
         )
         await websocket.accept()
         await websocket.send_json(

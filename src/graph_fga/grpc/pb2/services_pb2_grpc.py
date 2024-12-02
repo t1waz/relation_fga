@@ -29,6 +29,11 @@ class GraphFgaServiceStub(object):
             request_serializer=messages__pb2.StoreUpdateRequest.SerializeToString,
             response_deserializer=messages__pb2.StoreUpdateResponse.FromString,
         )
+        self.store_list = channel.unary_unary(
+            "/GraphFgaService/store_list",
+            request_serializer=messages__pb2.StoreListRequest.SerializeToString,
+            response_deserializer=messages__pb2.StoreListResponse.FromString,
+        )
         self.store_read = channel.unary_unary(
             "/GraphFgaService/store_read",
             request_serializer=messages__pb2.StoreReadRequest.SerializeToString,
@@ -67,6 +72,12 @@ class GraphFgaServiceServicer(object):
         raise NotImplementedError("Method not implemented!")
 
     def store_update(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details("Method not implemented!")
+        raise NotImplementedError("Method not implemented!")
+
+    def store_list(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details("Method not implemented!")
@@ -113,6 +124,11 @@ def add_GraphFgaServiceServicer_to_server(servicer, server):
             servicer.store_update,
             request_deserializer=messages__pb2.StoreUpdateRequest.FromString,
             response_serializer=messages__pb2.StoreUpdateResponse.SerializeToString,
+        ),
+        "store_list": grpc.unary_unary_rpc_method_handler(
+            servicer.store_list,
+            request_deserializer=messages__pb2.StoreListRequest.FromString,
+            response_serializer=messages__pb2.StoreListResponse.SerializeToString,
         ),
         "store_read": grpc.unary_unary_rpc_method_handler(
             servicer.store_read,
@@ -222,6 +238,35 @@ class GraphFgaService(object):
             "/GraphFgaService/store_update",
             messages__pb2.StoreUpdateRequest.SerializeToString,
             messages__pb2.StoreUpdateResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+        )
+
+    @staticmethod
+    def store_list(
+        request,
+        target,
+        options=(),
+        channel_credentials=None,
+        call_credentials=None,
+        insecure=False,
+        compression=None,
+        wait_for_ready=None,
+        timeout=None,
+        metadata=None,
+    ):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            "/GraphFgaService/store_list",
+            messages__pb2.StoreListRequest.SerializeToString,
+            messages__pb2.StoreListResponse.FromString,
             options,
             channel_credentials,
             insecure,

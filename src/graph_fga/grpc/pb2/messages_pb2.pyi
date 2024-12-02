@@ -128,6 +128,16 @@ class StoreViewResponse(_message.Message):
         self, store_id: _Optional[str] = ..., model: _Optional[str] = ...
     ) -> None: ...
 
+class StoreListRequest(_message.Message):
+    __slots__ = ()
+    def __init__(self) -> None: ...
+
+class StoreListResponse(_message.Message):
+    __slots__ = ("store_ids",)
+    STORE_IDS_FIELD_NUMBER: _ClassVar[int]
+    store_ids: _containers.RepeatedScalarFieldContainer[str]
+    def __init__(self, store_ids: _Optional[_Iterable[str]] = ...) -> None: ...
+
 class StoreListObjectsRequest(_message.Message):
     __slots__ = ("store_id", "user", "permission", "type", "contextual_tuples")
     STORE_ID_FIELD_NUMBER: _ClassVar[int]
