@@ -11,6 +11,8 @@ class UpdateStoreTool(Tool):
 
         1. Mandatory Requirements:
            - Always preserve the 'type user' definition
+           - Never use plural names for resource modeling
+           - For resource name during permission modeling always use english names.
            - Maintain referential integrity across all relations
            - Ensure all type definitions are complete with their relations
 

@@ -73,8 +73,11 @@ class GraphFgaGrpcClient:
         ]
 
     def store_write(
-        self, store_id: str, writes: List[RelationTuple], deletes: List[RelationTuple]
+        self, store_id: str, writes: Optional[List[RelationTuple]] = None, deletes: Optional[List[RelationTuple]] = None
     ) -> str:
+        writes = writes or []
+        deletes = deletes or []
+
         response = self._stub.store_write(
             messages_pb2.StoreWriteRequest(
                 store_id=store_id,

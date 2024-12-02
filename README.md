@@ -27,10 +27,28 @@ I am very open to criticism, I probably made mistakes
 
 DEV GUIDE
 ---------
+SETUP:
+    - cp example.envs .envs and fill ANTHROPIC_API_KEY if You want to use overseer chat
+    - create venv
+    - install requirements.txt from:
+        compose/grpc/requirements.txt
+        compose/overseer_backend/requirements.txt
+        src/examples/simple_backend/requirements.txt
+
 RUN APP:
 
+    $ docker compose build
     $ docker compose up
 
+RUN example server:
+
+    $ uvicorn examples.simple_backend.main:app
+
+Services:
+1. localhost - overseer chat
+2. localhost:4000 - memgraph lab
+3. localhost/grpc - grpc server for OpenFga
+4. localhost/overseer - overseer backend (websocket endpoint)
 
 PROTOS:
 
@@ -38,7 +56,6 @@ run commands from graph_fga/grpc folder:
 
     $ python -m grpc_tools.protoc -I./protos --python_out=./pb2 --pyi_out=./pb2 --grpc_python_out=./pb2 protos/messages.proto
     $ python -m grpc_tools.protoc -I./protos --python_out=./pb2 --pyi_out=./pb2 --grpc_python_out=./pb2 protos/services.proto
-    
 
 edit file services_pb2_grpc first line to:
 

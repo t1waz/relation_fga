@@ -52,7 +52,7 @@ services:
     volumes:
       - mg_lib:/var/lib/memgraph
       - mg_log:/var/log/memgraph
-      - mg_etc:/etc/memgraph 
+      - mg_etc:/etc/memgraph
     healthcheck:
       test: ["CMD", "nc", "-z", "-v", "graph_db", "7687"]
       interval: 5s
