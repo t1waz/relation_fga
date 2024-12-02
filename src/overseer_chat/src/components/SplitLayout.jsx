@@ -20,7 +20,7 @@ const SplitLayout = () => {
 
     const connect = useCallback(() => {
         try {
-            const ws = new WebSocket('ws://localhost:8000/overseer');
+            const ws = new WebSocket('ws://localhost/overseer');
             ws.onopen = () => {
                 setIsConnected(true);
                 if (reconnectTimeoutRef.current) {

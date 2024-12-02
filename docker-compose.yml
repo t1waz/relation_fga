@@ -13,45 +13,70 @@ services:
       dockerfile: ./compose/grpc/Dockerfile
     volumes:
       - ./src:/app
-    ports:
-      - 0.0.0.0:9999:9999
     command: python server_grpc/main.py
     depends_on:
-      graph-db:
+      graph_db:
         condition: service_healthy
     networks:
       - graph_fga
     env_file: .envs
 
-  overseer:
+  overseer_backend:
     build:
       context: .
-      dockerfile: ./compose/overseer/Dockerfile
+      dockerfile: ./compose/overseer_backend/Dockerfile
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://overseer_backend:8000/health" ]
+      interval: 5s
+      timeout: 10s
+      retries: 15
     volumes:
       - ./src:/app
-    ports:
-      - 0.0.0.0:8000:8000
-    command: uvicorn overseer.main:app --host 0.0.0.0 --port 8000
+    command: uvicorn overseer_backend.main:app --host 0.0.0.0 --port 8000
     depends_on:
-      graph-db:
+      graph_db:
         condition: service_healthy
     networks:
       - graph_fga
     env_file: .envs
 
-  graph-db:
+  graph_db:
     image: memgraph/memgraph-platform
     networks:
       - graph_fga
-    ports:
-      - 0.0.0.0:3000:3000
     healthcheck:
-      test: ["CMD", "nc", "-z", "-v", "graph-db", "7687"]
+      test: ["CMD", "nc", "-z", "-v", "graph_db", "7687"]
       interval: 5s
       timeout: 5s
       retries: 3
+    ports:
+      - "4000:3000"
     deploy:
       resources:
         limits:
           cpus: '2.0'
           memory: 4G
+
+  overseer_chat:
+    build:
+      context: .
+      dockerfile: ./compose/overseer_chat/Dockerfile
+    volumes:
+      - ./src/overseer_chat:/app
+    command: npm run dev -- --host 0.0.0.0
+    networks:
+      - graph_fga
+    env_file: .envs
+
+  nginx:
+    build:
+      context: .
+      dockerfile: compose/nginx/Dockerfile
+    depends_on:
+      - overseer_backend
+    networks:
+      - graph_fga
+    volumes:
+      - ./compose/nginx/nginx.conf:/etc/nginx/nginx.conf
+    ports:
+      - "0.0.0.0:80:80"
