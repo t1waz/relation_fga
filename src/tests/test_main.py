@@ -1439,6 +1439,44 @@ class TestMainWrite:
 
         assert response.status == "ok"
 
+    def test_graph_fga_server_send_valid_writes_with_sub_type(
+        self, grpc_stub, f_auth_model_1
+    ):
+        request = messages_pb2.StoreWriteRequest(
+            store_id=f_auth_model_1.id,
+            writes=[
+                messages_pb2.StoreRelationTuple(
+                    user="foo:d8ed#manager",
+                    relation="comrade",
+                    object="group:79b8",
+                )
+            ],
+            deletes=[],
+        )
+
+        response = grpc_stub.store_write(request=request)
+
+        assert response.status == "ok"
+
+    def test_graph_fga_server_send_valid_writes_with_sub_type_related(
+        self, grpc_stub, f_auth_model_1
+    ):
+        request = messages_pb2.StoreWriteRequest(
+            store_id=f_auth_model_1.id,
+            writes=[
+                messages_pb2.StoreRelationTuple(
+                    user="group:d8ed#comrade",
+                    relation="manager",
+                    object="issue:79b8",
+                )
+            ],
+            deletes=[],
+        )
+
+        response = grpc_stub.store_write(request=request)
+
+        assert response.status == "ok"
+
 
 class TestMainDelete:
     def test_graph_fga_server_send_invalid_source_name_for_deletes_relations(
@@ -1614,7 +1652,7 @@ class TestMainDelete:
     ):
         desired_relation_tuples = [
             RelationTuple(
-                source="group:1#comrade", relation="viewer", target="issue:1"
+                source="group:1#comrade", relation="manager", target="issue:1"
             ),
             RelationTuple(
                 source="group:2#comrade", relation="manager", target="issue:1"

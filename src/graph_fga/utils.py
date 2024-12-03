@@ -1,4 +1,5 @@
 import networkx as nx
+from typing import Optional
 
 
 def visualize_g(g: nx.Graph) -> None:
@@ -37,3 +38,10 @@ def get_type_from_gid(gid_key: str) -> str:
         return gid_key.split(":")[0]
     except (KeyError, ValueError, IndexError):
         raise ValueError(f"invalid value for: '{gid_key}', no type")
+
+
+def get_sub_type_from_gid(gid_key: str) -> Optional[str]:
+    try:
+        return gid_key.split("#")[1]
+    except (KeyError, ValueError, IndexError):
+        return None

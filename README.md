@@ -40,7 +40,7 @@ RUN APP:
     $ docker compose build
     $ docker compose up
 
-RUN example server:
+RUN example server (from src dir):
 
     $ uvicorn examples.simple_backend.main:app
 

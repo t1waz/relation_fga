@@ -172,7 +172,7 @@ class PermissionEngine:
             relation=relation
         )
 
-        if relation_tuple.source_name not in allowed_source_names:
+        if relation_tuple.source_full_name not in allowed_source_names:
             raise InvalidRelationTupleException(
                 f'invalid source type: "{relation_tuple.source_name}" '
                 f"for tuple: {asdict(relation_tuple)} "
