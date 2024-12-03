@@ -11,14 +11,13 @@ type user
 
 """
 
+
 def get_or_create_default_store(fga_client: GraphFgaGrpcClient) -> str:
     existing_store_ids = fga_client.store_list()
     if existing_store_ids:
         store_id = existing_store_ids[0]
     else:
-        store_id = fga_client.store_create(
-            model_str=DEFAULT_STORE_PERMISSION_MODEL
-        )
+        raise ValueError("need to wait for store")
 
     return store_id
 
@@ -34,18 +33,17 @@ async def lifespan(app: FastAPI):
     yield
 
 
-
 app = FastAPI(
     title="FGA API demo",
     description="API for demo Fine Grained Access Control",
-    lifespan=lifespan
+    lifespan=lifespan,
 )
 
 
 @app.post(
     "/create",
     status_code=200,
-    description="Create a new resource with specified permissions"
+    description="Create a new resource with specified permissions",
 )
 async def create_resource(request_data: RelationTuple, request: Request):
     relation_tuple = RelationTuple(
@@ -55,11 +53,10 @@ async def create_resource(request_data: RelationTuple, request: Request):
     )
     try:
         request.app.state.fga_client.store_write(
-            store_id=request.app.state.store_id,
-            writes=[relation_tuple]
+            store_id=request.app.state.store_id, writes=[relation_tuple]
         )
-    except Exception as _:
-        return Response(status_code=400)
+    except Exception as e:
+        return Response(status_code=400, content=str(e))
 
     return Response(status_code=200)
 
@@ -67,7 +64,7 @@ async def create_resource(request_data: RelationTuple, request: Request):
 @app.post(
     "/check",
     status_code=200,
-    description="Check access permissions for a given user and object"
+    description="Check access permissions for a given user and object",
 )
 async def check_access(request_data: CheckRequest, request: Request):
     has_access = request.app.state.fga_client.store_check(

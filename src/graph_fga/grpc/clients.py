@@ -73,7 +73,10 @@ class GraphFgaGrpcClient:
         ]
 
     def store_write(
-        self, store_id: str, writes: Optional[List[RelationTuple]] = None, deletes: Optional[List[RelationTuple]] = None
+        self,
+        store_id: str,
+        writes: Optional[List[RelationTuple]] = None,
+        deletes: Optional[List[RelationTuple]] = None,
     ) -> str:
         writes = writes or []
         deletes = deletes or []

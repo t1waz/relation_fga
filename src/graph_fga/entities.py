@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from functools import cached_property
 from typing import Optional, List
 
-from graph_fga.utils import get_type_from_gid, get_id_from_gid
+from graph_fga.utils import get_type_from_gid, get_id_from_gid, get_sub_type_from_gid
 
 
 @dataclass(frozen=True)
@@ -20,6 +20,14 @@ class RelationTuple:
     @cached_property
     def source_name(self) -> str:
         return get_type_from_gid(gid_key=self.source)
+
+    @cached_property
+    def source_full_name(self) -> str:
+        sub_type = get_sub_type_from_gid(gid_key=self.source)
+        if sub_type:
+            return f"{self.source_name}#{sub_type}"
+        else:
+            return self.source_name
 
     @cached_property
     def target_id(self) -> str:
