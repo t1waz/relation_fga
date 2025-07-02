@@ -8,9 +8,15 @@ from graph_fga.grpc.pb2 import services_pb2_grpc
 
 
 class GraphFgaGrpcClient:
-    def __init__(self, host: str, port: Union[str, int]) -> None:
+    def __init__(
+        self, host: str, port: Union[str, int], endpoint: Optional[str] = None
+    ) -> None:
+        channel_connection_str = f"{host}:{port}"
+        if endpoint:
+            channel_connection_str += f"{endpoint}"  # TODO
+
         self._stub = services_pb2_grpc.GraphFgaServiceStub(
-            channel=grpc.insecure_channel(f"{host}:{port}")
+            channel=grpc.insecure_channel(channel_connection_str)
         )
 
     def store_list(self) -> List[str]:

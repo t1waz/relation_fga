@@ -24,7 +24,9 @@ def get_or_create_default_store(fga_client: GraphFgaGrpcClient) -> str:
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    fga_client = GraphFgaGrpcClient(host="localhost", port=80)
+    fga_client = GraphFgaGrpcClient(
+        host="localhost", port=8000, endpoint="/GraphFgaService"
+    )
     store_id = get_or_create_default_store(fga_client=fga_client)
 
     app.state.store_id = store_id

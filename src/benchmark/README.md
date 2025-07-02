@@ -20,7 +20,7 @@ HOW TO RUN BENCHMARK
     $ python benchmark/gen_data.py
    
 4. copy graph store_id from gen_data.py console result,
-   and paste it to test_graph.py
+   and paste it to check_graph.py/check_openfga.py
 
 5. run test graph:
    

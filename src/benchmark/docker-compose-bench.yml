@@ -14,14 +14,18 @@ services:
     volumes:
       - ../../src:/app
     ports:
-      - 0.0.0.0:9999:9999
+      - "0.0.0.0:9999:9999"
     command: python server_grpc/main.py
+    environment:
+      - PYTHONPATH=/app
+      - PYTHONUNBUFFERED=1
+      - GRAPH_DB_HOST=graph-db
+      - GRAPH_DB_PORT=7687
     depends_on:
       graph-db:
         condition: service_healthy
     networks:
       - graph_fga
-    env_file: ../../.envs
 
   openfga:
     image: openfga/openfga:latest
@@ -37,6 +41,7 @@ services:
       OPENFGA_DATASTORE_MAX_OPEN_CONNS: 1000
       OPENFGA_HTTP_UPSTREAM_TIMEOUT: 10000s
       OPENFGA_LIST_OBJECTS_DEADLINE: 1000s
+      OPENFGA_REQUEST_TIMEOUT: 1000s
       OPENFGA_TRACE_ENABLED: false
       OPENFGA_TRACE_SAMPLE_RATIO: 1
       OPENFGA_LOG_LEVEL: none
@@ -94,8 +99,8 @@ services:
   graph-db:
     image: memgraph/memgraph-platform
     ports:
-      - 0.0.0.0:3002:3000
-      - 0.0.0.0:7687:7687
+      - "0.0.0.0:3002:3000"
+      - "0.0.0.0:7687:7687"
     networks:
       - graph_fga
     healthcheck:

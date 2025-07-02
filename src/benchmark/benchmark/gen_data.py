@@ -7,11 +7,12 @@ from tqdm import tqdm
 from graph_fga.entities import RelationTuple
 from graph_fga.grpc.clients import GraphFgaGrpcClient
 from graph_fga.repository import RelationTupleRepository
-from benchmark.benchmark.settings import *
+from benchmark.benchmark import settings as benchhmark_settings
+
 
 RELATIONS = ["editor", "viewer"]
 
-MAGNITUDE = 10
+MAGNITUDE = 1
 
 
 class GraphService:
@@ -19,14 +20,19 @@ class GraphService:
         self._store_id = self._setup_store_id()
         self._repo = RelationTupleRepository(
             driver=GraphDatabase.driver(
-                uri=f"bolt://{GRAPH_DB_HOST}:{GRAPH_DB_PORT}", auth=("", "")
+                uri=f"bolt://{benchhmark_settings.GRAPH_DB_HOST}:{benchhmark_settings.GRAPH_DB_PORT}",
+                auth=("", ""),
             )
         )
 
     @staticmethod
     def _setup_store_id() -> str:
-        client = GraphFgaGrpcClient(host=GRAPH_FGA_HOST, port=GRAPH_FGA_PORT)
-        return client.store_create(model_str=SCHEMA)
+        client = GraphFgaGrpcClient(
+            host=benchhmark_settings.GRAPH_FGA_HOST,
+            port=benchhmark_settings.GRAPH_FGA_PORT,
+        )
+
+        return client.store_create(model_str=benchhmark_settings.SCHEMA)
 
     def save(self, relation_tuple: RelationTuple) -> None:
         self._repo.save(relation_tuple=relation_tuple, store_id=self._store_id)
@@ -38,7 +44,7 @@ class GraphService:
 
 class OpenFgaService:
     def __init__(self) -> None:
-        self._fga_url = f"http://{OPENFGA_HOST}:{OPENFGA_PORT}"
+        self._fga_url = f"http://{benchhmark_settings.OPENFGA_HOST}:{benchhmark_settings.OPENFGA_PORT}"
         self._store_id = self._setup_store_id()
         self._auth_id = self._setup_auth_model()
 
@@ -52,7 +58,7 @@ class OpenFgaService:
     def _setup_auth_model(self) -> str:
         response = httpx.post(
             f"{self._fga_url}/stores/{self._store_id}/authorization-models",
-            json=JSON_SCHEMA,
+            json=benchhmark_settings.JSON_SCHEMA,
         )
         if response.status_code != 201:
             raise ValueError("cannot create auth model")

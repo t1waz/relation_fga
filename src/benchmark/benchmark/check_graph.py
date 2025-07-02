@@ -1,14 +1,16 @@
 import time
 
-from benchmark.benchmark.settings import *
+from benchmark.benchmark import settings as benchhmark_settings
 from graph_fga.grpc.clients import GraphFgaGrpcClient
 
 
-STORE_ID = "e3fd79be-bf48-46ea-977e-e4b3e93086cb"
+STORE_ID = "19f133bc-f19b-4fd5-b616-280449441d50"
 
 
 if __name__ == "__main__":
-    client = GraphFgaGrpcClient(host=GRAPH_FGA_HOST, port=GRAPH_FGA_PORT)
+    client = GraphFgaGrpcClient(
+        host=benchhmark_settings.GRAPH_FGA_HOST, port=benchhmark_settings.GRAPH_FGA_PORT
+    )
 
     for _ in range(100):
         t1 = time.time()
