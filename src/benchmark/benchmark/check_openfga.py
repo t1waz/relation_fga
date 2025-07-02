@@ -2,9 +2,11 @@ import time
 
 import httpx
 
-from benchmark.benchmark.settings import *
+from benchmark.benchmark import settings as benchhmark_settings
 
-FGA_URL = f"http://{OPENFGA_HOST}:{OPENFGA_PORT}"
+FGA_URL = (
+    f"http://{benchhmark_settings.OPENFGA_HOST}:{benchhmark_settings.OPENFGA_PORT}"
+)
 
 
 if __name__ == "__main__":
