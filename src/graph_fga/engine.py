@@ -1,15 +1,12 @@
 from dataclasses import asdict
-from typing import List, Optional, Any
+from typing import Any, Dict, List, Optional
 
-from graph_fga.command import (
-    GraphListCommand,
-    GraphInstanceCommand,
-    GraphRelationsCommand,
-)
+from graph_fga.command import GraphRelationsCommand, GraphTraversalQuery
+from graph_fga.utils import normalize_relation
 from graph_fga.entities import (
     CheckRequest,
-    RelationTuple,
     ListObjectsRequest,
+    RelationTuple,
 )
 from graph_fga.exceptions import InvalidRelationTupleException
 from graph_fga.interpreter.auth_model import AuthModel
@@ -31,12 +28,39 @@ class PermissionEngine:
         self._relation_tuple_repository = relation_tuple_repository
         self._model_service = AuthModelService(auth_model=self._model)
 
+    @staticmethod
+    def _ctx_param(
+        contextual_tuples: Optional[List[RelationTuple]],
+    ) -> List[Dict[str, str | None]]:
+        return [
+            {
+                "relation": normalize_relation(
+                    relation=t.relation, condition_type=t.condition_type
+                ),
+                "src_type": t.source_name,
+                "src_id": t.source_id,
+                "tgt_type": t.target_name,
+                "tgt_id": t.target_id,
+            }
+            for t in contextual_tuples or []
+        ]
+
+    def _validate_contextual_tuples(
+        self, contextual_tuples: Optional[List[RelationTuple]]
+    ) -> None:
+        for relation_tuple in contextual_tuples or []:
+            self.validate_relation_tuple(relation_tuple=relation_tuple)
+
     def check_permission(self, store_id: str, check_request: CheckRequest) -> bool:
-        source_type: ModelType = self._model.get_type(name=check_request.source_type)
+        source_type: ModelType | None = self._model.get_type(
+            name=check_request.source_type
+        )
         if not source_type:
             return False
 
-        target_type: ModelType = self._model.get_type(name=check_request.target_type)
+        target_type: ModelType | None = self._model.get_type(
+            name=check_request.target_type
+        )
         if not target_type:
             return False
 
@@ -46,32 +70,75 @@ class PermissionEngine:
         if not type_relation:
             return False
 
-        cmd = GraphInstanceCommand(
-            source_gid=check_request.source,
-            target_gid=check_request.target,
-            store_id=store_id,
+        self._validate_contextual_tuples(
+            contextual_tuples=check_request.contextual_tuples
         )
-        for cmd_str in self._model_service.get_paths_cmds(
+
+        paths = self._model_service.get_paths_hops(
             start=source_type.name, end=target_type.name, relation=type_relation.name
-        ):
-            cmd.add_cmd_str(cmd_str=cmd_str)
+        )
+        if not paths:
+            return False
 
+        query = GraphTraversalQuery(paths=paths)
+        params = {
+            "store_id": store_id,
+            "source_id": check_request.source_id,
+            "target_id": check_request.target_id,
+            "ctx": self._ctx_param(contextual_tuples=check_request.contextual_tuples),
+        }
+
+        logger.debug(f"check permission cmd: {query.check_cmd} params: {params}")
         with self._driver.session(database="memgraph") as session:
-            with session.begin_transaction() as tx:
-                for context_tuple in check_request.contextual_tuples:
-                    self._relation_tuple_repository.save(
-                        store_id=store_id, relation_tuple=context_tuple, tx=tx
-                    )
+            data = session.run(query.check_cmd, parameters=params).data()
 
-                logger.debug(f"check permission cmd: {cmd.graph_cmd}")
-                result = tx.run(cmd.graph_cmd, database_="memgraph")
-                data = result.data()
+        return any(bool(d[GraphTraversalQuery.RESULT_KEY]) for d in data)
 
-                tx.rollback()
+    def get_objects(
+        self, store_id: str, list_objects_request: ListObjectsRequest
+    ) -> List[str]:
+        source_type: ModelType | None = self._model.get_type(
+            name=list_objects_request.source_type
+        )
+        if not source_type:
+            return []
 
-        result = next(iter(data[0][cmd.result_key]), False)
+        target_type: ModelType | None = self._model.get_type(
+            name=list_objects_request.target_type
+        )
+        if not target_type:
+            return []
 
-        return bool(result)
+        type_relation: Any = self._model.get_type_relation(
+            name=list_objects_request.permission, type_name=target_type.name
+        )
+        if not type_relation:
+            return []
+
+        self._validate_contextual_tuples(
+            contextual_tuples=list_objects_request.contextual_tuples
+        )
+
+        paths = self._model_service.get_paths_hops(
+            start=source_type.name, end=target_type.name, relation=type_relation.name
+        )
+        if not paths:
+            return []
+
+        query = GraphTraversalQuery(paths=paths)
+        params = {
+            "store_id": store_id,
+            "source_id": list_objects_request.source_id,
+            "ctx": self._ctx_param(
+                contextual_tuples=list_objects_request.contextual_tuples
+            ),
+        }
+
+        logger.debug(f"get objects cmd: {query.list_cmd} params: {params}")
+        with self._driver.session(database="memgraph") as session:
+            data = session.run(query.list_cmd, parameters=params).data()
+
+        return [str(d[GraphTraversalQuery.RESULT_KEY]) for d in data]
 
     def get_relations(
         self,
@@ -91,7 +158,7 @@ class PermissionEngine:
 
         with self._driver.session(database="memgraph") as session:
             logger.debug(f"get relations cmd: {cmd.graph_cmd}")
-            result = session.run(cmd.graph_cmd, database_="memgraph")
+            result = session.run(cmd.graph_cmd)
             data = result.data()
 
         relations = [d["r"] for d in data]
@@ -103,52 +170,6 @@ class PermissionEngine:
             )
             for d in relations
         ]
-
-    def get_objects(
-        self, store_id: str, list_objects_request: ListObjectsRequest
-    ) -> List[str]:
-        source_type: ModelType = self._model.get_type(
-            name=list_objects_request.source_type
-        )
-        if not source_type:
-            return []
-
-        target_type: ModelType = self._model.get_type(
-            name=list_objects_request.target_type
-        )
-        if not target_type:
-            return []
-
-        type_relation: Any = self._model.get_type_relation(
-            name=list_objects_request.permission, type_name=target_type.name
-        )
-        if not type_relation:
-            return []
-
-        cmd = GraphListCommand(
-            store_id=store_id,
-            source_gid=list_objects_request.source,
-            target_type=list_objects_request.target_type,
-        )
-        for cmd_str in self._model_service.get_paths_cmds(
-            start=source_type.name, end=target_type.name, relation=type_relation.name
-        ):
-            cmd.add_cmd_str(cmd_str=cmd_str)
-
-        with self._driver.session(database="memgraph") as session:
-            with session.begin_transaction() as tx:
-                for context_tuple in list_objects_request.contextual_tuples:
-                    self._relation_tuple_repository.save(
-                        store_id=store_id, relation_tuple=context_tuple, tx=tx
-                    )
-
-                logger.debug(f"get objects cmd: {cmd.graph_cmd}")
-                result = tx.run(cmd.graph_cmd, database_="memgraph")
-                data = result.data()
-
-                tx.rollback()
-
-        return [str(d) for d in data[0][cmd.result_key]]
 
     def validate_relation_tuple(self, relation_tuple: RelationTuple) -> None:
         target_type = self.auth_model.get_type(name=relation_tuple.target_name)

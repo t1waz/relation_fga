@@ -1052,7 +1052,7 @@ class TestMainCheck:
     ):
         desired_user = "user:foo1"
         desired_object = "issue:777"
-        common_object = "task:1234"
+        common_object = "ticket:1234"
 
         relation_tuple_repository.save(
             store_id=f_auth_model_5.id,
@@ -1083,6 +1083,43 @@ class TestMainCheck:
         )
 
         assert response.allowed is True
+
+    def test_graph_fga_server_check_existing_related_with_from_two_nested_middle_not_existing(
+        self, grpc_stub, f_auth_model_5, relation_tuple_repository
+    ):
+        desired_user = "user:foo1"
+        desired_object = "issue:777"
+        common_object = "nonexisting:1234"
+
+        relation_tuple_repository.save(
+            store_id=f_auth_model_5.id,
+            relation_tuple=RelationTuple(
+                source=desired_user, target="parcel:1111", relation="manager"
+            ),
+        )
+        relation_tuple_repository.save(
+            store_id=f_auth_model_5.id,
+            relation_tuple=RelationTuple(
+                source="parcel:1111", target=common_object, relation="attached"
+            ),
+        )
+        relation_tuple_repository.save(
+            store_id=f_auth_model_5.id,
+            relation_tuple=RelationTuple(
+                source=common_object, target=desired_object, relation="attached"
+            ),
+        )
+
+        response = grpc_stub.store_check(
+            request=messages_pb2.StoreCheckRequest(
+                store_id=f_auth_model_5.id,
+                user=desired_user,
+                object=desired_object,
+                permission="can_edit",
+            )
+        )
+
+        assert response.allowed is False
 
     def test_graph_fga_server_check_with_contextual_tuple(
         self, grpc_stub, f_auth_model_1, relation_tuple_repository

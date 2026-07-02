@@ -9,7 +9,6 @@ from graph_fga.grpc.clients import GraphFgaGrpcClient
 from graph_fga.repository import RelationTupleRepository
 from benchmark.benchmark import settings as benchhmark_settings
 
-
 RELATIONS = ["editor", "viewer"]
 
 MAGNITUDE = 1

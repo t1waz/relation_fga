@@ -5,7 +5,6 @@ from fastapi import FastAPI, Request, Response
 from graph_fga.entities import RelationTuple, CheckRequest
 from graph_fga.grpc.clients import GraphFgaGrpcClient
 
-
 DEFAULT_STORE_PERMISSION_MODEL = """
 type user
 

@@ -1,7 +1,13 @@
 from google.protobuf.internal import containers as _containers
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from typing import ClassVar as _ClassVar, Iterable as _Iterable, Mapping as _Mapping, Optional as _Optional, Union as _Union
+from typing import (
+    ClassVar as _ClassVar,
+    Iterable as _Iterable,
+    Mapping as _Mapping,
+    Optional as _Optional,
+    Union as _Union,
+)
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
@@ -13,7 +19,12 @@ class StoreRelationTuple(_message.Message):
     user: str
     relation: str
     object: str
-    def __init__(self, user: _Optional[str] = ..., relation: _Optional[str] = ..., object: _Optional[str] = ...) -> None: ...
+    def __init__(
+        self,
+        user: _Optional[str] = ...,
+        relation: _Optional[str] = ...,
+        object: _Optional[str] = ...,
+    ) -> None: ...
 
 class StoreWriteRequest(_message.Message):
     __slots__ = ("store_id", "writes", "deletes")
@@ -23,7 +34,12 @@ class StoreWriteRequest(_message.Message):
     store_id: str
     writes: _containers.RepeatedCompositeFieldContainer[StoreRelationTuple]
     deletes: _containers.RepeatedCompositeFieldContainer[StoreRelationTuple]
-    def __init__(self, store_id: _Optional[str] = ..., writes: _Optional[_Iterable[_Union[StoreRelationTuple, _Mapping]]] = ..., deletes: _Optional[_Iterable[_Union[StoreRelationTuple, _Mapping]]] = ...) -> None: ...
+    def __init__(
+        self,
+        store_id: _Optional[str] = ...,
+        writes: _Optional[_Iterable[_Union[StoreRelationTuple, _Mapping]]] = ...,
+        deletes: _Optional[_Iterable[_Union[StoreRelationTuple, _Mapping]]] = ...,
+    ) -> None: ...
 
 class StoreWriteResponse(_message.Message):
     __slots__ = ("status",)
@@ -43,7 +59,16 @@ class StoreCheckRequest(_message.Message):
     object: str
     store_id: str
     contextual_tuples: _containers.RepeatedCompositeFieldContainer[StoreRelationTuple]
-    def __init__(self, user: _Optional[str] = ..., permission: _Optional[str] = ..., object: _Optional[str] = ..., store_id: _Optional[str] = ..., contextual_tuples: _Optional[_Iterable[_Union[StoreRelationTuple, _Mapping]]] = ...) -> None: ...
+    def __init__(
+        self,
+        user: _Optional[str] = ...,
+        permission: _Optional[str] = ...,
+        object: _Optional[str] = ...,
+        store_id: _Optional[str] = ...,
+        contextual_tuples: _Optional[
+            _Iterable[_Union[StoreRelationTuple, _Mapping]]
+        ] = ...,
+    ) -> None: ...
 
 class StoreCheckResponse(_message.Message):
     __slots__ = ("allowed",)
@@ -63,7 +88,9 @@ class StoreCreateResponse(_message.Message):
     STORE_ID_FIELD_NUMBER: _ClassVar[int]
     status: str
     store_id: str
-    def __init__(self, status: _Optional[str] = ..., store_id: _Optional[str] = ...) -> None: ...
+    def __init__(
+        self, status: _Optional[str] = ..., store_id: _Optional[str] = ...
+    ) -> None: ...
 
 class StoreUpdateRequest(_message.Message):
     __slots__ = ("store_id", "model")
@@ -71,7 +98,9 @@ class StoreUpdateRequest(_message.Message):
     MODEL_FIELD_NUMBER: _ClassVar[int]
     store_id: str
     model: str
-    def __init__(self, store_id: _Optional[str] = ..., model: _Optional[str] = ...) -> None: ...
+    def __init__(
+        self, store_id: _Optional[str] = ..., model: _Optional[str] = ...
+    ) -> None: ...
 
 class StoreUpdateResponse(_message.Message):
     __slots__ = ("status", "store_id")
@@ -79,7 +108,9 @@ class StoreUpdateResponse(_message.Message):
     STORE_ID_FIELD_NUMBER: _ClassVar[int]
     status: str
     store_id: str
-    def __init__(self, status: _Optional[str] = ..., store_id: _Optional[str] = ...) -> None: ...
+    def __init__(
+        self, status: _Optional[str] = ..., store_id: _Optional[str] = ...
+    ) -> None: ...
 
 class StoreViewRequest(_message.Message):
     __slots__ = ("store_id",)
@@ -93,7 +124,9 @@ class StoreViewResponse(_message.Message):
     MODEL_FIELD_NUMBER: _ClassVar[int]
     store_id: str
     model: str
-    def __init__(self, store_id: _Optional[str] = ..., model: _Optional[str] = ...) -> None: ...
+    def __init__(
+        self, store_id: _Optional[str] = ..., model: _Optional[str] = ...
+    ) -> None: ...
 
 class StoreListRequest(_message.Message):
     __slots__ = ()
@@ -117,7 +150,16 @@ class StoreListObjectsRequest(_message.Message):
     permission: str
     type: str
     contextual_tuples: _containers.RepeatedCompositeFieldContainer[StoreRelationTuple]
-    def __init__(self, store_id: _Optional[str] = ..., user: _Optional[str] = ..., permission: _Optional[str] = ..., type: _Optional[str] = ..., contextual_tuples: _Optional[_Iterable[_Union[StoreRelationTuple, _Mapping]]] = ...) -> None: ...
+    def __init__(
+        self,
+        store_id: _Optional[str] = ...,
+        user: _Optional[str] = ...,
+        permission: _Optional[str] = ...,
+        type: _Optional[str] = ...,
+        contextual_tuples: _Optional[
+            _Iterable[_Union[StoreRelationTuple, _Mapping]]
+        ] = ...,
+    ) -> None: ...
 
 class StoreListObjectsResponse(_message.Message):
     __slots__ = ("objects",)
@@ -131,7 +173,9 @@ class StoreReadObj(_message.Message):
     TYPE_FIELD_NUMBER: _ClassVar[int]
     id: str
     type: str
-    def __init__(self, id: _Optional[str] = ..., type: _Optional[str] = ...) -> None: ...
+    def __init__(
+        self, id: _Optional[str] = ..., type: _Optional[str] = ...
+    ) -> None: ...
 
 class StoreReadRequest(_message.Message):
     __slots__ = ("store_id", "relation", "source", "target")
@@ -143,10 +187,18 @@ class StoreReadRequest(_message.Message):
     relation: str
     source: StoreReadObj
     target: StoreReadObj
-    def __init__(self, store_id: _Optional[str] = ..., relation: _Optional[str] = ..., source: _Optional[_Union[StoreReadObj, _Mapping]] = ..., target: _Optional[_Union[StoreReadObj, _Mapping]] = ...) -> None: ...
+    def __init__(
+        self,
+        store_id: _Optional[str] = ...,
+        relation: _Optional[str] = ...,
+        source: _Optional[_Union[StoreReadObj, _Mapping]] = ...,
+        target: _Optional[_Union[StoreReadObj, _Mapping]] = ...,
+    ) -> None: ...
 
 class StoreReadResponse(_message.Message):
     __slots__ = ("objects",)
     OBJECTS_FIELD_NUMBER: _ClassVar[int]
     objects: _containers.RepeatedCompositeFieldContainer[StoreRelationTuple]
-    def __init__(self, objects: _Optional[_Iterable[_Union[StoreRelationTuple, _Mapping]]] = ...) -> None: ...
+    def __init__(
+        self, objects: _Optional[_Iterable[_Union[StoreRelationTuple, _Mapping]]] = ...
+    ) -> None: ...

@@ -12,7 +12,6 @@ from overseer_backend.clients import graph_fga_client
 from overseer_backend.domain.ai import OverSeerAssistant
 from overseer_backend.logger import logger
 
-
 DEFAULT_STORE_PERMISSION_MODEL = """
 type user
 

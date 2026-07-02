@@ -3,7 +3,6 @@ import time
 from benchmark.benchmark import settings as benchhmark_settings
 from graph_fga.grpc.clients import GraphFgaGrpcClient
 
-
 STORE_ID = "19f133bc-f19b-4fd5-b616-280449441d50"
 
 

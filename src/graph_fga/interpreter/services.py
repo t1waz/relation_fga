@@ -1,10 +1,21 @@
 from __future__ import annotations
 
-from typing import List, Any
+from dataclasses import dataclass
+from typing import Any, List, Tuple
 
 import networkx as nx
 
+from graph_fga.constants import CONDITION_SEPARATOR
 from graph_fga.interpreter.auth_model import AuthModel
+
+
+@dataclass(frozen=True)
+class PathHop:
+    """One traversal step: (:src_type)-[:relation]->(:tgt_type)."""
+
+    src_type: str
+    relation: str
+    tgt_type: str
 
 
 class AuthModelService:
@@ -19,31 +30,45 @@ class AuthModelService:
             None,
         )
 
-    def _parse_path_to_cmd(self, path: List[Any]) -> str:
-        start_type = path.pop(0)
+    def _parse_path_to_hops(self, path: List[Any]) -> Tuple[PathHop, ...]:
+        """Walk a model-graph path and emit structured hops.
+
+        Same traversal logic as the old _parse_path_to_cmd, but returns
+        data instead of a Cypher fragment, so query builders can decide
+        how to render each hop (and how to splice in contextual tuples).
+        """
+        path = list(path)  # nx yields fresh lists, but don't rely on it
+        current_type = path.pop(0)
         path.pop(-1)
 
-        cmd = f"({start_type.name})"
+        hops: List[PathHop] = []
         last_node = None
-        for i, node in enumerate(path):
+        for node in path:
             r = None
             successor = self._get_relation_successor(relation=node)
+
             if node.type == "permission":
-                node_data = self.auth_model.g[last_node or start_type][node]
+                node_data = self.auth_model.g[last_node or current_type][node]
                 if node_data:
                     r = node_data["allowed"]
-
             elif last_node:
-                r = f"{node.name}111{last_node.name}"
-            elif r is None:
+                r = f"{node.name}{CONDITION_SEPARATOR}{last_node.name}"
+            else:
                 r = node.name
 
             if r:
-                cmd = f"{cmd}-[:{r}]->({successor.name})"
+                hops.append(
+                    PathHop(
+                        src_type=current_type.name,
+                        relation=r,
+                        tgt_type=successor.name,
+                    )
+                )
+                current_type = successor
 
             last_node = node
 
-        return cmd
+        return tuple(hops)
 
     def _filter_paths(self, paths: List[Any], relation: str) -> List[Any]:
         no_types_paths = filter(
@@ -54,7 +79,9 @@ class AuthModelService:
 
         return list(relation_paths)
 
-    def get_paths_cmds(self, start: str, end: str, relation: str) -> List[str]:
+    def get_paths_hops(
+        self, start: str, end: str, relation: str
+    ) -> List[Tuple[PathHop, ...]]:
         start_type = self.auth_model.get_type(name=start)
         end_type = self.auth_model.get_type(name=end)
         if not start_type or not end_type:
@@ -64,12 +91,26 @@ class AuthModelService:
         if not graph_paths:
             return []
 
-        return list(
-            {
-                self._parse_path_to_cmd(path=path)
-                for path in self._filter_paths(paths=graph_paths, relation=relation)
-            }
-        )
+        unique_hops = {
+            self._parse_path_to_hops(path=path)
+            for path in self._filter_paths(paths=graph_paths, relation=relation)
+        }
+
+        return [hops for hops in unique_hops if hops]
+
+    def get_paths_cmds(self, start: str, end: str, relation: str) -> List[str]:
+        """Kept for backward compatibility (tests, debugging).
+
+        Renders the same hop lists as the old implementation did.
+        """
+        cmds = set()
+        for hops in self.get_paths_hops(start=start, end=end, relation=relation):
+            cmd = f"({hops[0].src_type})" + "".join(
+                f"-[:{h.relation}]->({h.tgt_type})" for h in hops
+            )
+            cmds.add(cmd)
+
+        return list(cmds)
 
     @property
     def auth_model(self) -> AuthModel:

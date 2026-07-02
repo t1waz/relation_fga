@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import ply.lex as lex
 
-
 tokens = (
     "TYPE",
     "RELATION",

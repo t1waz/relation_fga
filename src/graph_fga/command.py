@@ -1,133 +1,66 @@
-from typing import Optional, Any
+from typing import Any, List, Optional, Sequence, Tuple
 
-from graph_fga.utils import get_id_from_gid, get_type_from_gid
+from graph_fga.interpreter.services import PathHop
 
 
-class GraphListCommand:
-    def __init__(self, source_gid: str, target_type: str, store_id: str) -> None:
-        self._store_id = store_id
-        self._source_gid = source_gid
-        self._target_type = target_type
+class GraphTraversalQuery:
+    RESULT_KEY = "res"
 
-        self._call_cmd_count = 0
-        self._cmd = (
-            f"MATCH (s:{self.source_type} "
-            f'{{id: "{self.source_id}", store: "{self._store_id}"}})\n'
-        )
+    def __init__(self, paths: Sequence[Tuple[PathHop, ...]]) -> None:
+        if not paths:
+            raise ValueError("at least one path is required")
 
-    def add_cmd_str(self, cmd_str: str) -> None:
-        cmd_str = cmd_str.replace(f"({self.source_type})", "(s)", 1)
-        target = f'(t{self.var_num}:{self.target_type}  {{store: "{self._store_id}"}})'
-        cmd_str = cmd_str[::-1].replace(f"({self.target_type})"[::-1], target[::-1], 1)[
-            ::-1
-        ]
+        self._paths = list(paths)
 
-        cmd_part = (
-            f"CALL {{\n"
-            f"  WITH s\n"
-            f"  MATCH {cmd_str}\n"
-            f"  RETURN collect(t{self.var_num}.id) as t{self.var_num}\n"
-            f"}}"
-        )
-        self._cmd = f"{self._cmd}{cmd_part}\n"
-        self._call_cmd_count += 1
+    @staticmethod
+    def _hop_cypher(k: int, i: int, hop: PathHop) -> str:
+        a, b = f"a{k}_{i}", f"b{k}_{i}"
+        f_prev, f_next, db = f"f{k}_{i}", f"f{k}_{i + 1}", f"db{k}_{i}"
 
-    @property
-    def var_num(self) -> int:
-        return self._call_cmd_count
-
-    @property
-    def source_type(self) -> str:
-        return get_type_from_gid(gid_key=self._source_gid)
-
-    @property
-    def source_id(self) -> str:
-        return get_id_from_gid(gid_key=self._source_gid)
-
-    @property
-    def target_type(self) -> str:
-        return self._target_type
-
-    @property
-    def graph_cmd(self) -> Any:
-        variables = [f"t{i}" for i in range(self.var_num)]
         return (
-            f"{self._cmd} WITH {', '.join(variables)}\n"
-            f"UNWIND {' + '.join(variables)} AS results\n"
-            f"RETURN COLLECT(DISTINCT results) as {self.result_key}"
+            f"OPTIONAL MATCH ({a}:{hop.src_type} {{store: $store_id}})"
+            f"-[:{hop.relation}]->"
+            f"({b}:{hop.tgt_type} {{store: $store_id}})\n"
+            f"WHERE {a}.id IN {f_prev}\n"
+            f"WITH {f_prev}, collect(DISTINCT {b}.id) AS {db}\n"
+            f"WITH {db} + ["
+            f"ct IN $ctx WHERE ct.relation = '{hop.relation}' "
+            f"AND ct.src_type = '{hop.src_type}' "
+            f"AND ct.tgt_type = '{hop.tgt_type}' "
+            f"AND ct.src_id IN {f_prev} "
+            f"| ct.tgt_id] AS {f_next}\n"
         )
 
-    @property
-    def result_key(self) -> str:
-        return "res"
+    def _path_chain(self, k: int, hops: Tuple[PathHop, ...]) -> str:
+        parts = [f"WITH [$source_id] AS f{k}_0\n"]
+        for i, hop in enumerate(hops):
+            parts.append(self._hop_cypher(k=k, i=i, hop=hop))
 
-
-class GraphInstanceCommand:
-    def __init__(self, source_gid: str, target_gid: str, store_id: str) -> None:
-        self._store_id = store_id
-        self._source_gid = source_gid
-        self._target_gid = target_gid
-
-        self._call_cmd_count = 0
-        self._cmd = (
-            f"MATCH (s:{self.source_type} "
-            f'{{id: "{self.source_id}", store: "{self._store_id}"}})\n'
-        )
-
-    def add_cmd_str(self, cmd_str: str) -> None:
-        cmd_str = cmd_str.replace(f"({self.source_type})", "(s)", 1)
-        target = (
-            f"(t{self.var_num}:{self.target_type}  "
-            f'{{id: "{self.target_id}", store: "{self._store_id}"}})'
-        )
-        cmd_str = cmd_str[::-1].replace(f"({self.target_type})"[::-1], target[::-1], 1)[
-            ::-1
-        ]
-
-        cmd_part = (
-            f"CALL {{\n"
-            f"  WITH s\n"
-            f"  MATCH {cmd_str}\n"
-            f"  RETURN collect(t{self.var_num}.id) as t{self.var_num}\n"
-            f"  LIMIT 1\n"
-            f"}}"
-        )
-        self._cmd = f"{self._cmd}{cmd_part}\n"
-        self._call_cmd_count += 1
+        return "".join(parts)
 
     @property
-    def var_num(self) -> int:
-        return self._call_cmd_count
+    def check_cmd(self) -> str:
+        branches = []
+        for k, hops in enumerate(self._paths):
+            branches.append(
+                f"{self._path_chain(k=k, hops=hops)}"
+                f"RETURN any(x IN f{k}_{len(hops)} WHERE x = $target_id) "
+                f"AS {self.RESULT_KEY}"
+            )
+
+        return "\nUNION\n".join(branches)
 
     @property
-    def source_type(self) -> str:
-        return get_type_from_gid(gid_key=self._source_gid)
+    def list_cmd(self) -> str:
+        branches = []
+        for k, hops in enumerate(self._paths):
+            branches.append(
+                f"{self._path_chain(k=k, hops=hops)}"
+                f"UNWIND f{k}_{len(hops)} AS obj{k}\n"
+                f"RETURN obj{k} AS {self.RESULT_KEY}"
+            )
 
-    @property
-    def source_id(self) -> str:
-        return get_id_from_gid(gid_key=self._source_gid)
-
-    @property
-    def target_id(self) -> str:
-        return get_id_from_gid(gid_key=self._target_gid)
-
-    @property
-    def target_type(self) -> str:
-        return get_type_from_gid(gid_key=self._target_gid)
-
-    @property
-    def result_key(self) -> str:
-        return "res"
-
-    @property
-    def graph_cmd(self) -> Any:
-        variables = [f"t{i}" for i in range(self.var_num)]
-        return (
-            f"{self._cmd} WITH {', '.join(variables)}\n"
-            f"UNWIND {' + '.join(variables)} AS results\n"
-            f"RETURN COLLECT(DISTINCT results) as {self.result_key}\n"
-            f"LIMIT 1"
-        )
+        return "\nUNION\n".join(branches)
 
 
 class GraphRelationsCommand:
@@ -175,6 +108,6 @@ class GraphRelationsCommand:
         if self._target_type:
             cmd = f"{cmd}:{self._target_type}"
         if self._target_id:
-            cmd = f'{cmd} {{id: "{self._source_id}"'
+            cmd = f'{cmd} {{id: "{self._target_id}"'
 
         return f"{cmd}}})"

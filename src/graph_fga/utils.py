@@ -1,9 +1,12 @@
-import networkx as nx
 from typing import Optional
+
+import networkx as nx
+
+from graph_fga import constants
 
 
 def visualize_g(g: nx.Graph) -> None:
-    import matplotlib.pyplot as plt
+    import matplotlib.pyplot as plt  # lol, must be here
 
     pos = nx.kamada_kawai_layout(g)
 
@@ -45,3 +48,10 @@ def get_sub_type_from_gid(gid_key: str) -> Optional[str]:
         return gid_key.split("#")[1]
     except (KeyError, ValueError, IndexError):
         return None
+
+
+def normalize_relation(relation: str, condition_type: Optional[str] = None) -> str:
+    if condition_type:
+        return f"{relation}{constants.CONDITION_SEPARATOR}{condition_type}"
+
+    return relation

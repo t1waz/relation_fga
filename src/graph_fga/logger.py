@@ -2,7 +2,6 @@ import logging
 from functools import lru_cache
 from server_grpc.settings import settings
 
-
 LOGGER_LEVELS = {
     "debug": logging.DEBUG,
     "info": logging.INFO,

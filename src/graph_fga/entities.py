@@ -14,7 +14,7 @@ class RelationTuple:
     relation: str
 
     @cached_property
-    def target_name(self) -> Optional[str]:
+    def target_name(self) -> str:
         return get_type_from_gid(gid_key=self.target)
 
     @cached_property
